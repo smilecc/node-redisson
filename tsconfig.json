@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "dist",
+        "rootDir": ".",
+        "sourceMap": false,
+        "target": "ESNext",
+        "module": "Node16",
+        "strict": true,
+        "strictNullChecks": true,
+        "skipLibCheck": true,
+        "removeComments": false,
+        "moduleResolution": "node16",
+        "paths": {
+            "core": [
+                "packages/core/src"
+            ]
+        }
+    }
+}
