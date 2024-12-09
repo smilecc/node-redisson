@@ -25,14 +25,11 @@ export abstract class RedissionBaseLock implements IRLock {
   abstract forceUnlock(): Promise<boolean>;
   abstract isLocked(): Promise<boolean>;
 
-  protected getLockName(clientId: LockClientId) {
+  protected getClientName(clientId: LockClientId) {
     return `${this.commandExecutor.id}:${clientId}`;
   }
 
-  /**
-   * TODO 续期
-   */
-  protected async scheduleExpirationRenewal(clientId: LockClientId) {
+  protected scheduleExpirationRenewal(clientId: LockClientId) {
     const oldEntry = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
     if (oldEntry) {
@@ -41,11 +38,11 @@ export abstract class RedissionBaseLock implements IRLock {
       const entry = new ExpirationEntry();
       RedissionBaseLock.EXPIRATION_RENEWAL_MAP.set(this.entryName, entry);
 
-      await this.renewExpiration();
+      this.renewExpiration();
     }
   }
 
-  protected async renewExpiration() {
+  protected renewExpiration() {
     const ee = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
     if (!ee) {
@@ -53,29 +50,34 @@ export abstract class RedissionBaseLock implements IRLock {
     }
 
     setTimeout(async () => {
-      const ent = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
+      try {
+        const ent = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
-      if (!ent) {
-        return;
+        if (!ent) {
+          return;
+        }
+
+        const clientId = ent.firstClientId;
+        if (!clientId) {
+          return;
+        }
+
+        const result = await this.commandExecutor.redis.rRenewExpiration(
+          this.lockName,
+          this.internalLockLeaseTime,
+          this.getClientName(clientId),
+        );
+
+        if (result) {
+          this.renewExpiration();
+        } else {
+          this.cancelExpirationRenewal();
+        }
+      } catch (e) {
+        // TODO std logger
+        console.error(e);
       }
-
-      const clientId = ent.firstClientId;
-      if (!clientId) {
-        return;
-      }
-
-      const result = await this.commandExecutor.redis.rRenewExpiration(
-        this.lockName,
-        this.internalLockLeaseTime,
-        this.getLockName(clientId),
-      );
-
-      if (result) {
-        this.renewExpiration();
-      } else {
-        this.cancelExpirationRenewal();
-      }
-    }, Number((this.internalLockLeaseTime / 3n).toString()));
+    }, Number(`${this.internalLockLeaseTime / 3n}`));
   }
 
   protected cancelExpirationRenewal(clientId?: LockClientId, unlockResult?: boolean) {

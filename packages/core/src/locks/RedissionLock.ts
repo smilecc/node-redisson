@@ -14,6 +14,12 @@ export class RedissionLock extends RedissionBaseLock {
     const clientId = '';
     const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
 
+    // lock acquired
+    if (ttl === null) {
+      return true;
+    }
+
+    // calc wait time
     time -= TimeUnit.now() - current;
 
     if (time <= 0) {
@@ -28,6 +34,10 @@ export class RedissionLock extends RedissionBaseLock {
   private async tryAcquire(options: { waitTime?: bigint; leaseTime: bigint; unit: TimeUnit; clientId: string }) {
     const { waitTime, leaseTime, unit, clientId } = options;
 
+    /**
+     * ttlRemaining == null -> lock acquired
+     * ttlRemaining is a number -> the lock remaining time
+     */
     const ttlRemaining = await this.tryLockInner(
       leaseTime > 0
         ? {
@@ -45,10 +55,11 @@ export class RedissionLock extends RedissionBaseLock {
     );
 
     if (ttlRemaining === null) {
+      // lock acquired
       if (leaseTime > 0) {
         this.internalLockLeaseTime = unit.toMillis(leaseTime);
       } else {
-        await this.scheduleExpirationRenewal(clientId);
+        this.scheduleExpirationRenewal(clientId);
       }
     }
 
@@ -57,10 +68,9 @@ export class RedissionLock extends RedissionBaseLock {
 
   private async tryLockInner(options: { waitTime?: bigint; leaseTime: bigint; unit: TimeUnit; clientId: string }) {
     return this.commandExecutor.redis.rTryLockInner(
-      // TODO: lockName
-      '',
+      this.lockName,
       options.unit.toMillis(options.leaseTime),
-      options.clientId,
+      this.getClientName(options.clientId),
     );
   }
 
