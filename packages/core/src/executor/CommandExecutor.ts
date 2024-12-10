@@ -1,7 +1,8 @@
 import { ICommandExecutor } from '../contracts/ICommandExecutor';
-import Redis, { Callback, RedisOptions, Result } from 'ioredis';
+import Redis, { Result } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
 import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
+import { RedissionTime } from '../utils/TimeUnit';
 
 declare module 'ioredis' {
   interface RedisCommander<Context> {
@@ -10,14 +11,23 @@ declare module 'ioredis' {
   }
 }
 
-export class CommandExecutor implements ICommandExecutor {
+export abstract class CommandExecutor implements ICommandExecutor {
+  abstract subscribe<T>(eventName: string, listener: (e: T) => void): Promise<void>;
+  abstract unsubscribe(eventName: string, listener: (...args: any[]) => void): Promise<void>;
+  abstract subscribeOnce<T>(eventName: string, listener: (e: T) => void): Promise<void>;
+  abstract waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | '_TIMEOUT_'>;
+
   private _id: string;
   private _redis: Redis;
 
   constructor(private readonly config: IRedissionInnerConfig) {
     this._id = crypto.randomUUID();
-    this._redis = new Redis({
-      ...config.redisOptions,
+    this._redis = this.createRedis();
+  }
+
+  private createRedis() {
+    return new Redis({
+      ...this.config.redisOptions,
       scripts: {
         rTryLockInner: {
           lua: `
@@ -62,9 +72,8 @@ return 0;`,
         },
       },
     });
-
-    // this.redis.defineCommand('aaa', { numberOfKeys: 2, lua: '' });
   }
+
   get id(): string {
     return this._id;
   }

@@ -10,6 +10,11 @@ export abstract class RedissionBaseLock implements IRLock {
   protected internalLockLeaseTime: bigint;
   protected readonly entryName: string;
 
+  public static prefixName(prefix: string, name: string) {
+    const _name = name.startsWith('{') ? name : `{${name}}`;
+    return `${prefix}:${_name}`;
+  }
+
   constructor(protected readonly commandExecutor: ICommandExecutor, protected readonly lockName: string) {
     this.internalLockLeaseTime = commandExecutor.redissionConfig.lockWatchdogTimeout;
     this.entryName = `${commandExecutor.id}:${lockName}`;

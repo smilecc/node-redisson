@@ -2,14 +2,14 @@ import { ICommandExecutor } from './contracts/ICommandExecutor';
 import { IRedissionClient } from './contracts/IRedissionClient';
 import { IRedissionConfig, IRedissionInnerConfig } from './contracts/IRedissionConfig';
 import { IRLock } from './contracts/IRLock';
-import { CommandExecutor } from './executor/CommandExecutor';
+import { StreamsCommandExecutor } from './executor/StreamsCommandExecutor';
 import { RedissionLock } from './locks/RedissionLock';
 
 export class Redission implements IRedissionClient {
   private commandExecutor: ICommandExecutor;
 
   constructor(private readonly config: IRedissionConfig) {
-    this.commandExecutor = new CommandExecutor(this.withDefaultConfig(config));
+    this.commandExecutor = new StreamsCommandExecutor(this.withDefaultConfig(config));
   }
 
   private withDefaultConfig(config: IRedissionConfig): IRedissionInnerConfig {

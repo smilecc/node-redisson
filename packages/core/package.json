@@ -11,5 +11,8 @@
   "license": "ISC",
   "peerDependencies": {
     "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1"
   }
 }

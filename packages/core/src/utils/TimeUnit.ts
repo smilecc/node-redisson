@@ -1,5 +1,15 @@
+export type RedissionTime = number | bigint;
+
 export class TimeUnit {
-  constructor(public readonly baseMs: bigint) {}
+  private readonly _baseMs: bigint;
+
+  constructor(public readonly baseMs: RedissionTime) {
+    if (typeof baseMs === 'number') {
+      this._baseMs = BigInt(baseMs);
+    } else {
+      this._baseMs = baseMs;
+    }
+  }
 
   static MILLISECONDS = new TimeUnit(1n);
   static SECONDS = new TimeUnit(1000n);
@@ -12,23 +22,23 @@ export class TimeUnit {
    * - Unit: ms
    * @returns time
    */
-  static now(): bigint {
+  static now() {
     return BigInt(new Date().getTime());
   }
 
-  toMillis(d: bigint) {
-    return d * this.baseMs;
+  toMillis(d: RedissionTime) {
+    return BigInt(d) * this._baseMs;
   }
 
-  toSeconds(d: bigint) {
-    return (d * this.baseMs) / TimeUnit.SECONDS.baseMs;
+  toSeconds(d: RedissionTime) {
+    return (BigInt(d) * this._baseMs) / TimeUnit.SECONDS._baseMs;
   }
 
-  toHours(d: bigint) {
-    return (d * this.baseMs) / TimeUnit.HOURS.baseMs;
+  toHours(d: RedissionTime) {
+    return (BigInt(d) * this._baseMs) / TimeUnit.HOURS._baseMs;
   }
 
-  toDays(d: bigint) {
-    return (d * this.baseMs) / TimeUnit.DAYS.baseMs;
+  toDays(d: RedissionTime) {
+    return (BigInt(d) * this._baseMs) / TimeUnit.DAYS._baseMs;
   }
 }

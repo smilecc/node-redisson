@@ -19,16 +19,34 @@ export class RedissionLock extends RedissionBaseLock {
       return true;
     }
 
-    // calc wait time
-    time -= TimeUnit.now() - current;
+    const timeover = () => {
+      // calc wait time
+      time -= TimeUnit.now() - current;
 
-    if (time <= 0) {
-      return false;
+      // time over, get lock fail
+      return time <= 0;
+    };
+
+    // wait lock
+    while (true) {
+      if (timeover()) return false;
+
+      const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
+      // lock acquired
+      if (ttl === null) {
+        return true;
+      }
+
+      if (timeover()) return false;
+
+      // waiting for message
+      const _waitTime = ttl >= 0 && ttl < time ? ttl : time;
+      const waitResult = await this.commandExecutor.waitSubscribeOnce<never>(this.getChannelName(), Number(_waitTime));
+
+      if (waitResult === '_TIMEOUT_') {
+        return false;
+      }
     }
-
-    current = TimeUnit.now();
-
-    return true;
   }
 
   private async tryAcquire(options: { waitTime?: bigint; leaseTime: bigint; unit: TimeUnit; clientId: string }) {
@@ -88,5 +106,9 @@ export class RedissionLock extends RedissionBaseLock {
 
   isLocked(): Promise<boolean> {
     throw new Error('Method not implemented.');
+  }
+
+  getChannelName() {
+    return RedissionBaseLock.prefixName('redisson:lock_channel', this.lockName);
   }
 }
