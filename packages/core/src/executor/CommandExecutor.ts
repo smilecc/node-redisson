@@ -1,8 +1,7 @@
-import { ICommandExecutor } from '../contracts/ICommandExecutor';
+import { ICommandExecutor, SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import Redis, { Result } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
 import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
-import { RedissionTime } from '../utils/TimeUnit';
 
 declare module 'ioredis' {
   interface RedisCommander<Context> {
@@ -15,7 +14,7 @@ export abstract class CommandExecutor implements ICommandExecutor {
   abstract subscribe<T>(eventName: string, listener: (e: T) => void): Promise<void>;
   abstract unsubscribe(eventName: string, listener: (...args: any[]) => void): Promise<void>;
   abstract subscribeOnce<T>(eventName: string, listener: (e: T) => void): Promise<void>;
-  abstract waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | '_TIMEOUT_'>;
+  abstract waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT>;
 
   private _id: string;
   private _redis: Redis;

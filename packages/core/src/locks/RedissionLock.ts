@@ -1,4 +1,4 @@
-import { ICommandExecutor } from '../contracts/ICommandExecutor';
+import { ICommandExecutor, SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { TimeUnit } from '../utils/TimeUnit';
 import { RedissionBaseLock } from './RedissionBaseLock';
 
@@ -43,7 +43,7 @@ export class RedissionLock extends RedissionBaseLock {
       const _waitTime = ttl >= 0 && ttl < time ? ttl : time;
       const waitResult = await this.commandExecutor.waitSubscribeOnce<never>(this.getChannelName(), Number(_waitTime));
 
-      if (waitResult === '_TIMEOUT_') {
+      if (waitResult === SYMBOL_TIMEOUT) {
         return false;
       }
     }

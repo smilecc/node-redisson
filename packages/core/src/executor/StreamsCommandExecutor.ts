@@ -1,5 +1,5 @@
+import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
-import { RedissionTime } from '../utils/TimeUnit';
 import { CommandExecutor } from './CommandExecutor';
 import EventEmitter from 'node:events';
 
@@ -41,14 +41,14 @@ export class StreamsCommandExecutor extends CommandExecutor {
     this.eventEmitter.once(eventName, listener);
   }
 
-  waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | '_TIMEOUT_'> {
+  waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT> {
     return new Promise(async (resolve, reject) => {
       const handler = (e: T) => resolve(e);
 
       if (timeout) {
         setTimeout(async () => {
           await this.unsubscribe(eventName, handler);
-          resolve('_TIMEOUT_');
+          resolve(SYMBOL_TIMEOUT);
         }, timeout);
       }
 
