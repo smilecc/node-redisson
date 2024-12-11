@@ -11,6 +11,7 @@
         "skipLibCheck": true,
         "removeComments": false,
         "moduleResolution": "node16",
+        "esModuleInterop": true,
         "paths": {
             "core": [
                 "packages/core/src"
