@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --silent=false"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,7 @@
     "ioredis": "^5.4.1"
   },
   "devDependencies": {
+    "@testcontainers/redis": "^10.16.0",
     "@types/node": "^22.10.1"
   }
 }
