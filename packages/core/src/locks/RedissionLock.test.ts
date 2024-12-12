@@ -1,22 +1,30 @@
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redission } from '../Redisson';
+import { TestRedisContainer, TestTimeout } from '../utils/test.utils';
+import Redis from 'ioredis';
 
-describe('Redission Lock', () => {
-  jest.setTimeout(30000);
+describe('RedissionLock', () => {
+  jest.setTimeout(TestTimeout);
 
   let redisContainer: StartedRedisContainer;
   let redission: Redission;
 
   beforeAll(async () => {
-    redisContainer = await new RedisContainer('redis:7.4.1-alpine').start();
+    redisContainer = await TestRedisContainer;
 
     redission = new Redission({
-      redisOptions: {
-        host: redisContainer.getHost(),
-        port: redisContainer.getPort(),
-        password: redisContainer.getPassword(),
+      redis: {
+        options: {
+          host: redisContainer.getHost(),
+          port: redisContainer.getPort(),
+          password: redisContainer.getPassword(),
+        },
       },
     });
+
+    // wait redis connected
+    const redis = redission['commandExecutor'].redis;
+    await new Promise((r) => (redis as Redis).once('ready', r));
   });
 
   it('should connected', async () => {

@@ -17,7 +17,7 @@ export class StreamsCommandExecutor extends CommandExecutor {
 
   async listenForMessage(lastId = '$') {
     let nextId = lastId;
-    const results = await this.redis.xread('BLOCK', 0, 'STREAMS', REDIS_STREAMS_KEY, lastId);
+    const results = await this.subscribeRedis.xread('BLOCK', 0, 'STREAMS', REDIS_STREAMS_KEY, lastId);
 
     if (results) {
       const [_, messages] = results[0];
@@ -43,7 +43,9 @@ export class StreamsCommandExecutor extends CommandExecutor {
 
   waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT> {
     return new Promise(async (resolve, reject) => {
-      const handler = (e: T) => resolve(e);
+      const handler = (e: T) => {
+        resolve(e);
+      };
 
       if (timeout) {
         setTimeout(async () => {
@@ -54,5 +56,11 @@ export class StreamsCommandExecutor extends CommandExecutor {
 
       await this.subscribeOnce<T>(eventName, handler);
     });
+  }
+
+  async publish(eventName: string, e: string): Promise<string | null> {
+    const id = await this.redis.xadd(REDIS_STREAMS_KEY, 'MAXLEN', '~', '100', '*', eventName, e);
+    // console.log('publish', eventName, e, id);
+    return id;
   }
 }

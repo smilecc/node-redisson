@@ -59,6 +59,7 @@ export abstract class CommandExecutor implements ICommandExecutor {
   abstract unsubscribe(eventName: string, listener: (...args: any[]) => void): Promise<void>;
   abstract subscribeOnce<T>(eventName: string, listener: (e: T) => void): Promise<void>;
   abstract waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT>;
+  abstract publish(eventName: string, e: string): Promise<string | null>;
 
   private _id: string;
   private _redis: RedissionRedis;

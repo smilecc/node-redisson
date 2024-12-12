@@ -3,7 +3,7 @@
         "baseUrl": ".",
         "outDir": "dist",
         "rootDir": ".",
-        "sourceMap": false,
+        "sourceMap": true,
         "target": "ESNext",
         "module": "Node16",
         "strict": true,

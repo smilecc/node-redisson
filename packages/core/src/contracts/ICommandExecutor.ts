@@ -17,4 +17,5 @@ export interface ICommandExecutor {
   unsubscribe(eventName: string, listener: (...args: any[]) => void): Promise<void>;
   subscribeOnce<T>(eventName: string, listener: (e: T) => void): Promise<void>;
   waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT>;
+  publish(eventName: string, e: string): Promise<string | null>;
 }
