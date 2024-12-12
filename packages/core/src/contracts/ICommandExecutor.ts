@@ -1,12 +1,15 @@
-import Redis from 'ioredis';
+import Redis, { Cluster } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
 import { IRedissionInnerConfig } from './IRedissionConfig';
 
 export const SYMBOL_TIMEOUT = Symbol();
 
+export type RedissionRedis = Redis | Cluster;
+
 export interface ICommandExecutor {
   get id(): string;
-  get redis(): Redis;
+  get redis(): RedissionRedis;
+  get subscribeRedis(): RedissionRedis;
   get redissionConfig(): IRedissionInnerConfig;
   get serviceManager(): ServiceManager;
 

@@ -1,7 +1,7 @@
-import { RedisOptions } from 'ioredis';
+import { ClusterNode, ClusterOptions, RedisOptions } from 'ioredis';
 
 export interface IRedissionConfig {
-  redisOptions: RedisOptions;
+  redis: { options: RedisOptions } | { clusters: ClusterNode[]; options?: ClusterOptions };
 
   /**
    * This parameter is only used if lock has been acquired without leaseTimeout parameter definition.
