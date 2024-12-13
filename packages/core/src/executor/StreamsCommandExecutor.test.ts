@@ -15,6 +15,7 @@ describe('StreamsCommandExecutor', () => {
     redisContainer = await TestRedisContainer;
     executor = new StreamsCommandExecutor({
       lockWatchdogTimeout: 30000n,
+      eventAdapter: 'streams',
       redis: {
         options: {
           host: redisContainer.getHost(),

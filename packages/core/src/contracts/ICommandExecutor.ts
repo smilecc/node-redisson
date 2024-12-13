@@ -6,6 +6,11 @@ export const SYMBOL_TIMEOUT = Symbol();
 
 export type RedissonRedis = Redis | Cluster;
 
+export enum UnlockMessages {
+  UNLOCK = 0,
+  READ_UNLOCK = 1,
+}
+
 export interface ICommandExecutor {
   get id(): string;
   get redis(): RedissonRedis;

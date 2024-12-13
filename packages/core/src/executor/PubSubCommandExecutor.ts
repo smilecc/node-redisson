@@ -1,6 +1,7 @@
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
-import { CommandExecutor } from './CommandExecutor';
+import { PartialRecord } from '../utils/types';
+import { CommandExecutor, DEFAULT_REDIS_SCRIPTS, RedisScriptsKey } from './CommandExecutor';
 
 export class PubSubCommandExecutor extends CommandExecutor {
   constructor(config: IRedissonInnerConfig) {
@@ -21,5 +22,13 @@ export class PubSubCommandExecutor extends CommandExecutor {
   }
   publish(eventName: string, e: string): Promise<string | null> {
     throw new Error('Method not implemented.');
+  }
+
+  getRedisScripts(): PartialRecord<RedisScriptsKey, string> {
+    const unlockCommand = `redis.call('publish', KEYS[2], ARGV[1]);`;
+    return {
+      rUnlockInner: DEFAULT_REDIS_SCRIPTS.rTryLockInner.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
+      rForceUnlock: DEFAULT_REDIS_SCRIPTS.rForceUnlock.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
+    };
   }
 }

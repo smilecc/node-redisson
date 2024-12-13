@@ -8,6 +8,7 @@ export type LockClientId = string;
 export abstract class RedissonBaseLock implements IRLock {
   private static readonly EXPIRATION_RENEWAL_MAP = new Map<string, ExpirationEntry>();
 
+  protected id: string;
   protected lockName: string;
   protected clientId: LockClientId;
   protected internalLockLeaseTime: bigint;
@@ -19,9 +20,10 @@ export abstract class RedissonBaseLock implements IRLock {
   }
 
   constructor(protected readonly commandExecutor: ICommandExecutor, lockName: string) {
+    this.id = commandExecutor.id;
     this.lockName = lockName;
     this.clientId = randomUUID();
-    this.entryName = `${commandExecutor.id}:${lockName}`;
+    this.entryName = `${this.id}:${lockName}`;
     this.internalLockLeaseTime = commandExecutor.redissonConfig.lockWatchdogTimeout;
   }
 
@@ -29,10 +31,24 @@ export abstract class RedissonBaseLock implements IRLock {
     return this.lockName;
   }
 
-  abstract lockInterruptibly(leaseTime: bigint, unit: TimeUnit): Promise<void>;
   abstract tryLock(waitTime: bigint, leaseTime: bigint, unit: TimeUnit): Promise<boolean>;
-  abstract lock(leaseTime: bigint, unit: TimeUnit): Promise<void>;
+  abstract lock(leaseTime?: bigint, unit?: TimeUnit): Promise<void>;
   abstract forceUnlock(): Promise<boolean>;
+  abstract unlockInner(clientId: LockClientId, requestId: string, timeout: number): Promise<boolean>;
+
+  async unlock(): Promise<void> {
+    const requestId = randomUUID();
+    const unlockResult = await this.unlockInner(this.clientId, requestId, 10);
+    await this.commandExecutor.redis.del(this.getUnlockLatchName(requestId));
+
+    if (unlockResult === null) {
+      throw new Error(
+        `attempt to unlock lock, not locked by current thread by node id: ${this.id} client-id: ${this.clientId}`,
+      );
+    }
+
+    this.cancelExpirationRenewal(this.clientId, unlockResult);
+  }
 
   async isLocked(): Promise<boolean> {
     const count = await this.commandExecutor.redis.exists(this.lockName);
@@ -41,6 +57,10 @@ export abstract class RedissonBaseLock implements IRLock {
 
   protected getClientName(clientId: LockClientId) {
     return `${this.commandExecutor.id}:${clientId}`;
+  }
+
+  protected getUnlockLatchName(requestId: string) {
+    return `${RedissonBaseLock.prefixName('redisson_unlock_latch', this.lockName)}:${requestId}`;
   }
 
   protected scheduleExpirationRenewal(clientId: LockClientId) {

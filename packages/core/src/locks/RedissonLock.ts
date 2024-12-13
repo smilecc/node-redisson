@@ -1,4 +1,4 @@
-import { ICommandExecutor, SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
+import { ICommandExecutor, SYMBOL_TIMEOUT, UnlockMessages } from '../contracts/ICommandExecutor';
 import { TimeUnit } from '../utils/TimeUnit';
 import { LockClientId, RedissonBaseLock } from './RedissonBaseLock';
 
@@ -7,12 +7,14 @@ export class RedissonLock extends RedissonBaseLock {
     super(commandExecutor, lockName);
   }
 
-  async tryLock(waitTime: bigint, leaseTime: bigint, unit: TimeUnit): Promise<boolean> {
-    let time = unit.toMillis(waitTime);
+  async tryLock(waitTime: bigint | false, leaseTime: bigint, unit: TimeUnit): Promise<boolean> {
+    const waitForever = waitTime === false;
+
+    let time = unit.toMillis(waitForever ? 0 : waitTime);
     let current = TimeUnit.now();
 
     const clientId = this.clientId;
-    const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
+    const ttl = await this.tryAcquire({ leaseTime, unit, clientId });
 
     // lock acquired
     if (ttl === null) {
@@ -20,6 +22,8 @@ export class RedissonLock extends RedissonBaseLock {
     }
 
     const isTimeOver = () => {
+      if (waitForever) return false;
+
       // calc wait time
       time -= TimeUnit.now() - current;
 
@@ -31,7 +35,7 @@ export class RedissonLock extends RedissonBaseLock {
     while (true) {
       if (isTimeOver()) return false;
 
-      const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
+      const ttl = await this.tryAcquire({ leaseTime, unit, clientId });
       // lock acquired
       if (ttl === null) {
         return true;
@@ -49,8 +53,8 @@ export class RedissonLock extends RedissonBaseLock {
     }
   }
 
-  private async tryAcquire(options: { waitTime?: bigint; leaseTime: bigint; unit: TimeUnit; clientId: string }) {
-    const { waitTime, leaseTime, unit, clientId } = options;
+  private async tryAcquire(options: { leaseTime: bigint; unit: TimeUnit; clientId: string }) {
+    const { leaseTime, unit, clientId } = options;
 
     /**
      * ttlRemaining == null -> lock acquired
@@ -59,13 +63,11 @@ export class RedissonLock extends RedissonBaseLock {
     const ttlRemaining = await this.tryLockInner(
       leaseTime > 0
         ? {
-            waitTime,
             leaseTime,
             unit,
             clientId,
           }
         : {
-            waitTime,
             leaseTime: this.internalLockLeaseTime,
             unit: TimeUnit.MILLISECONDS,
             clientId,
@@ -84,7 +86,7 @@ export class RedissonLock extends RedissonBaseLock {
     return ttlRemaining;
   }
 
-  private async tryLockInner(options: { waitTime?: bigint; leaseTime: bigint; unit: TimeUnit; clientId: string }) {
+  private async tryLockInner(options: { leaseTime: bigint; unit: TimeUnit; clientId: string }) {
     return this.commandExecutor.redis.rTryLockInner(
       this.lockName,
       options.unit.toMillis(options.leaseTime),
@@ -92,27 +94,35 @@ export class RedissonLock extends RedissonBaseLock {
     );
   }
 
-  private async unlockInner(clientId: LockClientId, requestId: string, timeout: number) {
-    // this.commandExecutor.redis.rUnlockInner();
+  async unlockInner(clientId: LockClientId, requestId: string, timeout: number) {
+    const result = await this.commandExecutor.redis.rUnlockInner(
+      this.lockName,
+      this.getChannelName(),
+      this.getUnlockLatchName(requestId),
+      UnlockMessages.UNLOCK,
+      this.internalLockLeaseTime,
+      this.getClientName(clientId),
+      timeout,
+    );
+
+    return !!result;
   }
 
-  lockInterruptibly(leaseTime: bigint, unit: TimeUnit): Promise<void> {
-    throw new Error('Method not implemented.');
+  async lock(leaseTime: bigint = -1n, unit: TimeUnit = TimeUnit.MILLISECONDS): Promise<void> {
+    await this.tryLock(false, leaseTime, unit);
   }
 
-  lock(leaseTime: bigint, unit: TimeUnit): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
+  async forceUnlock(): Promise<boolean> {
+    const result = await this.commandExecutor.redis.rForceUnlock(
+      this.lockName,
+      this.getChannelName(),
+      UnlockMessages.UNLOCK,
+    );
 
-  forceUnlock(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return !!result;
   }
 
   getChannelName() {
     return RedissonBaseLock.prefixName('redisson:lock_channel', this.lockName);
-  }
-
-  getUnlockLatchName(requestId: string) {
-    return `${RedissonBaseLock.prefixName('redisson_unlock_latch', this.lockName)}:${requestId}`;
   }
 }
