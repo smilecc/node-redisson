@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ICommandExecutor } from '../contracts/ICommandExecutor';
 import { IRLock } from '../contracts/IRLock';
 import { TimeUnit } from '../utils/TimeUnit';
+import { RedissonLockError } from '../errors/RedissonLockError';
 
 export type LockClientId = string;
 
@@ -34,7 +35,7 @@ export abstract class RedissonBaseLock implements IRLock {
   abstract tryLock(waitTime: bigint, leaseTime: bigint, unit: TimeUnit): Promise<boolean>;
   abstract lock(leaseTime?: bigint, unit?: TimeUnit): Promise<void>;
   abstract forceUnlock(): Promise<boolean>;
-  abstract unlockInner(clientId: LockClientId, requestId: string, timeout: number): Promise<boolean>;
+  abstract unlockInner(clientId: LockClientId, requestId: string, timeout: number): Promise<boolean | null>;
 
   async unlock(): Promise<void> {
     const requestId = randomUUID();
@@ -42,12 +43,15 @@ export abstract class RedissonBaseLock implements IRLock {
     await this.commandExecutor.redis.del(this.getUnlockLatchName(requestId));
 
     if (unlockResult === null) {
-      throw new Error(
-        `attempt to unlock lock, not locked by current thread by node id: ${this.id} client-id: ${this.clientId}`,
+      throw new RedissonLockError(
+        `attempt to unlock lock, not locked by current client`,
+        this.lockName,
+        this.id,
+        this.clientId,
       );
     }
 
-    this.cancelExpirationRenewal(this.clientId, unlockResult);
+    this.cancelExpirationRenewal(unlockResult, this.clientId);
   }
 
   async isLocked(): Promise<boolean> {
@@ -56,7 +60,7 @@ export abstract class RedissonBaseLock implements IRLock {
   }
 
   protected getClientName(clientId: LockClientId) {
-    return `${this.commandExecutor.id}:${clientId}`;
+    return `${this.id}:${clientId}`;
   }
 
   protected getUnlockLatchName(requestId: string) {
@@ -105,7 +109,7 @@ export abstract class RedissonBaseLock implements IRLock {
         if (result) {
           this.renewExpiration();
         } else {
-          this.cancelExpirationRenewal();
+          this.cancelExpirationRenewal(true);
         }
       } catch (e) {
         // TODO std logger
@@ -114,7 +118,13 @@ export abstract class RedissonBaseLock implements IRLock {
     }, Number(`${this.internalLockLeaseTime / 3n}`));
   }
 
-  protected cancelExpirationRenewal(clientId?: LockClientId, unlockResult?: boolean) {
+  protected cancelExpirationRenewal(unlockResult: boolean, clientId?: LockClientId) {
+    // Recover the lockLeaseTime from config
+    if (unlockResult) {
+      this.internalLockLeaseTime = this.commandExecutor.redissonConfig.lockWatchdogTimeout;
+    }
+
+    // Remove entry from map
     const task = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
     if (!task) {
       return;

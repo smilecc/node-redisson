@@ -45,9 +45,14 @@ export class RedissonLock extends RedissonBaseLock {
 
       // waiting for message
       const _waitTime = ttl >= 0 && ttl < time ? ttl : time;
-      const waitResult = await this.commandExecutor.waitSubscribeOnce<never>(this.getChannelName(), Number(_waitTime));
+      const waitResult = await this.commandExecutor.waitSubscribeOnce<never>(
+        this.getChannelName(),
+        // When waitting forever, ttl has a possibility eq 0.
+        // So when _waitTime lte 0, set the timeout to 1000ms.
+        Number(_waitTime > 0 ? _waitTime : 1000),
+      );
 
-      if (waitResult === SYMBOL_TIMEOUT) {
+      if (!waitForever && waitResult === SYMBOL_TIMEOUT) {
         return false;
       }
     }
@@ -104,6 +109,12 @@ export class RedissonLock extends RedissonBaseLock {
       this.getClientName(clientId),
       timeout,
     );
+
+    // console.log({ clientName: this.getClientName(clientId), result });
+
+    if (result === null) {
+      return null;
+    }
 
     return !!result;
   }

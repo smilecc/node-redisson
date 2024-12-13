@@ -3,7 +3,7 @@ import Redis, { Result, RedisOptions } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
 import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
 import { randomUUID } from 'crypto';
-import { PartialRecord } from '../utils/types';
+import { PartialRecord } from '../types';
 
 export type RedisScriptsKey = 'rTryLockInner' | 'rUnlockInner' | 'rRenewExpiration' | 'rForceUnlock';
 export type RedisScriptsValue = NonNullable<RedisOptions['scripts']>[string];
@@ -17,12 +17,12 @@ declare module 'ioredis' {
       lockKey: string,
       channelName: string,
       unlockLatchName: string,
-      unlockMessage: number,
+      unlockMessage: string,
       leaseTime: bigint,
       clientName: string,
       timeout: number,
     ): Result<0 | 1, Context>;
-    rForceUnlock(lockKey: string, channelName: string, unlockMessage: number): Result<0 | 1, Context>;
+    rForceUnlock(lockKey: string, channelName: string, unlockMessage: string): Result<0 | 1, Context>;
   }
 }
 

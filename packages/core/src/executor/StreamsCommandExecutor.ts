@@ -1,6 +1,6 @@
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
-import { PartialRecord } from '../utils/types';
+import { PartialRecord } from '../types';
 import { CommandExecutor, DEFAULT_REDIS_SCRIPTS, RedisScriptsKey } from './CommandExecutor';
 import EventEmitter from 'node:events';
 
@@ -67,9 +67,9 @@ export class StreamsCommandExecutor extends CommandExecutor {
   }
 
   getRedisScripts(): PartialRecord<RedisScriptsKey, string> {
-    const unlockCommand = `redis.call('xadd', 'MAXLEN', '~', ${STREAMS_MAX_LEN}, '*', KEYS[2], ARGV[1]);`;
+    const unlockCommand = `redis.call('xadd', '${REDIS_STREAMS_KEY}', 'MAXLEN', '~', ${STREAMS_MAX_LEN}, '*', KEYS[2], ARGV[1]);`;
     return {
-      rUnlockInner: DEFAULT_REDIS_SCRIPTS.rTryLockInner.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
+      rUnlockInner: DEFAULT_REDIS_SCRIPTS.rUnlockInner.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
       rForceUnlock: DEFAULT_REDIS_SCRIPTS.rForceUnlock.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
     };
   }

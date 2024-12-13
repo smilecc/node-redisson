@@ -5,6 +5,8 @@ import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { RedissonLock } from './RedissonLock';
 import { TimeUnit } from '../utils/TimeUnit';
+import { RedissonLockError } from '../errors/RedissonLockError';
+import { UnlockMessages } from '../contracts/ICommandExecutor';
 
 describe('RedissonLock', () => {
   jest.setTimeout(TestTimeout);
@@ -21,12 +23,14 @@ describe('RedissonLock', () => {
           host: redisContainer.getHost(),
           port: redisContainer.getPort(),
           password: redisContainer.getPassword(),
+          // host: '127.0.0.1',
+          // port: 32768,
           enableReadyCheck: true,
         },
       },
     });
 
-    // wait redis connected
+    // Wait redis connected
     const redis = redisson['commandExecutor'].redis;
     await new Promise((r) => (redis as Redis).once('ready', r));
   });
@@ -35,31 +39,31 @@ describe('RedissonLock', () => {
     await redisson['commandExecutor'].redis.quit();
   });
 
-  it('should connected', async () => {
+  it('redis connected', async () => {
     const redis = redisson['commandExecutor'].redis;
     const randomKey = randomUUID();
     const randomValue = randomUUID();
 
-    await expect(redis.set(randomKey, randomValue)).resolves.toBe('OK');
+    await expect(redis.set(randomKey, randomValue, 'EX', 10)).resolves.toBe('OK');
     await expect(redis.get(randomKey)).resolves.toBe(randomValue);
   });
 
-  it.only('should be acquire lock', async () => {
+  it('tryAcquire lock', async () => {
     const lockName = randomUUID();
     const lock = redisson.getLock(lockName) as RedissonLock;
     const lock2 = redisson.getLock(lockName) as RedissonLock;
 
-    // test acquire lock
+    // Test acquire lock
     await expect(lock.isLocked()).resolves.toBeFalsy();
     await lock['tryAcquire']({ leaseTime: 2n, unit: TimeUnit.SECONDS, clientId: lock['clientId'] });
     await expect(lock.isLocked()).resolves.toBeTruthy();
 
-    // test reentrant lock
+    // Test reentrant lock
     await expect(
       lock['tryAcquire']({ leaseTime: 2n, unit: TimeUnit.SECONDS, clientId: lock['clientId'] }),
     ).resolves.toBeNull();
 
-    // get ttl
+    // Get ttl
     const ttlRemaining = await lock2['tryAcquire']({
       leaseTime: 1n,
       unit: TimeUnit.SECONDS,
@@ -68,8 +72,66 @@ describe('RedissonLock', () => {
 
     expect(typeof ttlRemaining).toBe('number');
 
-    // test lock timeout
+    // Test lock timeout
     await new Promise((r) => setTimeout(r, ttlRemaining!));
     await expect(lock.isLocked()).resolves.toBeFalsy();
+  });
+
+  it('lock and unlock', async () => {
+    const lockName = 'TestLock'; // randomUUID();
+    const lock = redisson.getLock(lockName);
+    const lock2 = redisson.getLock(lockName);
+
+    // Before lock, all lock can't unlock
+    expect(lock.unlock()).rejects.toThrow(RedissonLockError);
+    expect(lock2.unlock()).rejects.toThrow(RedissonLockError);
+
+    // All lock states should be unlocked
+    await expect(lock.isLocked()).resolves.toBeFalsy();
+    await expect(lock2.isLocked()).resolves.toBeFalsy();
+
+    // No.1 lock
+    await lock.lock();
+    // No.2 lock
+    await expect(lock.tryLock(1n, 0n, TimeUnit.SECONDS)).resolves.toBeTruthy();
+
+    // Test another tryLock
+    await expect(lock2.tryLock(1n, 0n, TimeUnit.SECONDS)).resolves.toBeFalsy();
+
+    // All lock states should be locked
+    await expect(lock.isLocked()).resolves.toBeTruthy();
+    await expect(lock2.isLocked()).resolves.toBeTruthy();
+
+    // No.1 unlock, All lock states should be locked
+    await lock.unlock();
+    await expect(lock.isLocked()).resolves.toBeTruthy();
+    await expect(lock2.isLocked()).resolves.toBeTruthy();
+
+    // After No.2 unlock, all lock states should be unlocked
+    await lock.unlock();
+    await expect(lock.isLocked()).resolves.toBeFalsy();
+    await expect(lock2.isLocked()).resolves.toBeFalsy();
+
+    // After unlock, all lock can't unlock again
+    expect(lock.unlock()).rejects.toThrow(RedissonLockError);
+    expect(lock2.unlock()).rejects.toThrow(RedissonLockError);
+  });
+
+  it('unlock event message', (done) => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+
+    // Check unlock message by lock channel
+    lock['commandExecutor'].subscribeOnce(lock['getChannelName'](), (v) => {
+      expect(v).toBe(UnlockMessages.UNLOCK);
+      done();
+    });
+
+    lock
+      .lock()
+      .then(async () => {
+        await lock.unlock();
+      })
+      .catch((e) => done(e));
   });
 });

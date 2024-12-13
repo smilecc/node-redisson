@@ -1,6 +1,6 @@
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
-import { PartialRecord } from '../utils/types';
+import { PartialRecord } from '../types';
 import { CommandExecutor, DEFAULT_REDIS_SCRIPTS, RedisScriptsKey } from './CommandExecutor';
 
 export class PubSubCommandExecutor extends CommandExecutor {
@@ -27,7 +27,7 @@ export class PubSubCommandExecutor extends CommandExecutor {
   getRedisScripts(): PartialRecord<RedisScriptsKey, string> {
     const unlockCommand = `redis.call('publish', KEYS[2], ARGV[1]);`;
     return {
-      rUnlockInner: DEFAULT_REDIS_SCRIPTS.rTryLockInner.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
+      rUnlockInner: DEFAULT_REDIS_SCRIPTS.rUnlockInner.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
       rForceUnlock: DEFAULT_REDIS_SCRIPTS.rForceUnlock.lua.replace('#PUB_UNLOCK_REPLACE#', unlockCommand),
     };
   }
