@@ -20,11 +20,11 @@ describe('RedissonLock', () => {
     redisson = new Redisson({
       redis: {
         options: {
-          host: redisContainer.getHost(),
-          port: redisContainer.getPort(),
-          password: redisContainer.getPassword(),
-          // host: '127.0.0.1',
-          // port: 32768,
+          // host: redisContainer.getHost(),
+          // port: redisContainer.getPort(),
+          // password: redisContainer.getPassword(),
+          host: '127.0.0.1',
+          port: 32768,
           enableReadyCheck: true,
         },
       },
@@ -210,5 +210,12 @@ describe('RedissonLock', () => {
     expect(lock2.isLocked()).resolves.toBeFalsy();
 
     await expect(lock2.tryLock(1n, 10n, TimeUnit.SECONDS)).resolves.toBeTruthy();
+  });
+
+  it.only('test', async () => {
+    const lock = redisson.getLock('SmileTest');
+
+    await lock.lock();
+    expect(lock.isLocked()).resolves.toBeTruthy();
   });
 });

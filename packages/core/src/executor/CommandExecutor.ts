@@ -84,7 +84,6 @@ export abstract class CommandExecutor implements ICommandExecutor {
   abstract subscribe<T>(eventName: string, listener: (e: T) => void): Promise<void>;
   abstract unsubscribe(eventName: string, listener: (...args: any[]) => void): Promise<void>;
   abstract subscribeOnce<T>(eventName: string, listener: (e: T) => void): Promise<void>;
-  abstract waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT>;
   abstract publish(eventName: string, e: string): Promise<string | null>;
   abstract getRedisScripts<K>(): PartialRecord<RedisScriptsKey, string>;
 
@@ -140,5 +139,22 @@ export abstract class CommandExecutor implements ICommandExecutor {
 
   get subscribeRedis(): RedissonRedis {
     return this._subscribeRedis;
+  }
+
+  waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT> {
+    return new Promise(async (resolve) => {
+      const handler = (e: T) => {
+        resolve(e);
+      };
+
+      if (timeout) {
+        setTimeout(async () => {
+          await this.unsubscribe(eventName, handler);
+          resolve(SYMBOL_TIMEOUT);
+        }, timeout);
+      }
+
+      await this.subscribeOnce<T>(eventName, handler);
+    });
   }
 }

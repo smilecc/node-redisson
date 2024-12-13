@@ -43,23 +43,6 @@ export class StreamsCommandExecutor extends CommandExecutor {
     this.eventEmitter.once(eventName, listener);
   }
 
-  waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT> {
-    return new Promise(async (resolve) => {
-      const handler = (e: T) => {
-        resolve(e);
-      };
-
-      if (timeout) {
-        setTimeout(async () => {
-          await this.unsubscribe(eventName, handler);
-          resolve(SYMBOL_TIMEOUT);
-        }, timeout);
-      }
-
-      await this.subscribeOnce<T>(eventName, handler);
-    });
-  }
-
   async publish(eventName: string, e: string): Promise<string | null> {
     const id = await this.redis.xadd(REDIS_STREAMS_KEY, 'MAXLEN', '~', STREAMS_MAX_LEN, '*', eventName, e);
     // console.log('publish', eventName, e, id);
