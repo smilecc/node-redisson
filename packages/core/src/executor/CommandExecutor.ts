@@ -8,6 +8,15 @@ declare module 'ioredis' {
   interface RedisCommander<Context> {
     rTryLockInner(lockKey: string, leaseTime: bigint, lockName: string): Result<number | null, Context>;
     rRenewExpiration(lockKey: string, leaseTime: bigint, lockName: string): Result<0 | 1, Context>;
+    rUnlockInner(
+      lockKey: string,
+      lockName: string,
+      unlockLatchName: string,
+      unlockMessage: bigint,
+      LeaseTime: bigint,
+      clientName: string,
+      publish: string,
+    ): Result<0 | 1, Context>;
   }
 }
 

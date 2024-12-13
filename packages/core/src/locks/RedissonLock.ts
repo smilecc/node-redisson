@@ -1,6 +1,6 @@
 import { ICommandExecutor, SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { TimeUnit } from '../utils/TimeUnit';
-import { RedissonBaseLock } from './RedissonBaseLock';
+import { LockClientId, RedissonBaseLock } from './RedissonBaseLock';
 
 export class RedissonLock extends RedissonBaseLock {
   constructor(commandExecutor: ICommandExecutor, lockName: string) {
@@ -92,6 +92,10 @@ export class RedissonLock extends RedissonBaseLock {
     );
   }
 
+  private async unlockInner(clientId: LockClientId, requestId: string, timeout: number) {
+    // this.commandExecutor.redis.rUnlockInner();
+  }
+
   lockInterruptibly(leaseTime: bigint, unit: TimeUnit): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -106,5 +110,9 @@ export class RedissonLock extends RedissonBaseLock {
 
   getChannelName() {
     return RedissonBaseLock.prefixName('redisson:lock_channel', this.lockName);
+  }
+
+  getUnlockLatchName(requestId: string) {
+    return `${RedissonBaseLock.prefixName('redisson_unlock_latch', this.lockName)}:${requestId}`;
   }
 }

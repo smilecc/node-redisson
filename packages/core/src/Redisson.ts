@@ -9,15 +9,22 @@ export class Redisson implements IRedissonClient {
   private commandExecutor: ICommandExecutor;
 
   constructor(private readonly config: IRedissonConfig) {
-    this.commandExecutor = new StreamsCommandExecutor(this.withDefaultConfig(config));
+    const innerConfig = this.withDefaultConfig(config);
+
+    if (innerConfig.eventAdapter === 'streams') {
+      this.commandExecutor = new StreamsCommandExecutor(innerConfig);
+    } else {
+      throw new Error('not implemented.');
+    }
   }
 
   private withDefaultConfig(config: IRedissonConfig): IRedissonInnerConfig {
-    const { lockWatchdogTimeout = 30_000n } = config;
+    const { lockWatchdogTimeout = 30_000n, eventAdapter: eventImplementation = 'streams' } = config;
 
     return {
-      ...config,
       lockWatchdogTimeout,
+      eventAdapter: eventImplementation,
+      ...config,
     };
   }
 

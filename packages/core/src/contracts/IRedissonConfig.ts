@@ -3,6 +3,8 @@ import { ClusterNode, ClusterOptions, RedisOptions } from 'ioredis';
 export interface IRedissonConfig {
   redis: { options: RedisOptions } | { clusters: ClusterNode[]; options?: ClusterOptions };
 
+  eventAdapter?: 'streams' | 'pubsub';
+
   /**
    * This parameter is only used if lock has been acquired without leaseTimeout parameter definition.
    * Lock expires after `lockWatchdogTimeout` if watchdog
@@ -21,4 +23,5 @@ type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property];
 };
 
-export interface IRedissonInnerConfig extends WithRequiredProperty<IRedissonConfig, 'lockWatchdogTimeout'> {}
+export interface IRedissonInnerConfig
+  extends WithRequiredProperty<IRedissonConfig, 'lockWatchdogTimeout' | 'eventAdapter'> {}
