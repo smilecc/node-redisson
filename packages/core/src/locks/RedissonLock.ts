@@ -44,7 +44,10 @@ export class RedissonLock extends RedissonBaseLock {
       if (isTimeOver()) return false;
 
       // waiting for message
-      const _waitTime = ttl >= 0 && ttl < time ? ttl : time;
+      const _waitTime = waitForever || (ttl >= 0 && ttl < time) ? ttl : time;
+
+      // console.log({ ttl, _waitTime });
+
       const waitResult = await this.commandExecutor.waitSubscribeOnce<never>(
         this.getChannelName(),
         // When waitting forever, ttl has a possibility eq 0.

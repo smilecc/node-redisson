@@ -20,11 +20,11 @@ describe('RedissonLock', () => {
     redisson = new Redisson({
       redis: {
         options: {
-          host: redisContainer.getHost(),
-          port: redisContainer.getPort(),
-          password: redisContainer.getPassword(),
-          // host: '127.0.0.1',
-          // port: 32768,
+          // host: redisContainer.getHost(),
+          // port: redisContainer.getPort(),
+          // password: redisContainer.getPassword(),
+          host: '127.0.0.1',
+          port: 32768,
           enableReadyCheck: true,
         },
       },
@@ -131,6 +131,65 @@ describe('RedissonLock', () => {
       .lock()
       .then(async () => {
         await lock.unlock();
+      })
+      .catch((e) => done(e));
+  });
+
+  it('wait manual unlock and acquire lock', (done) => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+    const lock2 = redisson.getLock(lockName) as RedissonLock;
+
+    lock
+      .lock()
+      .then(async () => {
+        lock2
+          .tryLock(false, 10n, TimeUnit.SECONDS)
+          .then((result) => {
+            expect(result).toBeTruthy();
+            done();
+          })
+          .catch((e) => done(e));
+
+        await lock.unlock();
+      })
+      .catch((e) => done(e));
+  });
+
+  it('wait lease unlock and acquire lock', (done) => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+    const lock2 = redisson.getLock(lockName) as RedissonLock;
+
+    lock
+      .tryLock(false, 2n, TimeUnit.SECONDS)
+      .then(async () => {
+        lock2
+          .tryLock(false, 10n, TimeUnit.SECONDS)
+          .then((result) => {
+            expect(result).toBeTruthy();
+            done();
+          })
+          .catch((e) => done(e));
+      })
+      .catch((e) => done(e));
+  });
+
+  it('wait lease unlock and lock fail', (done) => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+    const lock2 = redisson.getLock(lockName) as RedissonLock;
+
+    lock
+      .tryLock(false, 10n, TimeUnit.SECONDS)
+      .then(async () => {
+        lock2
+          .tryLock(1n, 10n, TimeUnit.SECONDS)
+          .then((result) => {
+            expect(result).toBeFalsy();
+            done();
+          })
+          .catch((e) => done(e));
       })
       .catch((e) => done(e));
   });
