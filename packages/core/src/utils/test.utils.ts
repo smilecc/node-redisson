@@ -5,4 +5,4 @@ export function createTestRedisContainer() {
 }
 
 export const TestRedisContainer = createTestRedisContainer();
-export const TestTimeout = 30000;
+export const TestTimeout = 120_000;

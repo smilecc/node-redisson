@@ -11,7 +11,7 @@ export class RedissonLock extends RedissonBaseLock {
     let time = unit.toMillis(waitTime);
     let current = TimeUnit.now();
 
-    const clientId = '';
+    const clientId = this.clientId;
     const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
 
     // lock acquired
@@ -19,7 +19,7 @@ export class RedissonLock extends RedissonBaseLock {
       return true;
     }
 
-    const timeover = () => {
+    const isTimeOver = () => {
       // calc wait time
       time -= TimeUnit.now() - current;
 
@@ -29,7 +29,7 @@ export class RedissonLock extends RedissonBaseLock {
 
     // wait lock
     while (true) {
-      if (timeover()) return false;
+      if (isTimeOver()) return false;
 
       const ttl = await this.tryAcquire({ waitTime, leaseTime, unit, clientId });
       // lock acquired
@@ -37,7 +37,7 @@ export class RedissonLock extends RedissonBaseLock {
         return true;
       }
 
-      if (timeover()) return false;
+      if (isTimeOver()) return false;
 
       // waiting for message
       const _waitTime = ttl >= 0 && ttl < time ? ttl : time;
@@ -101,10 +101,6 @@ export class RedissonLock extends RedissonBaseLock {
   }
 
   forceUnlock(): Promise<boolean> {
-    throw new Error('Method not implemented.');
-  }
-
-  isLocked(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 

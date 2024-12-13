@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { ICommandExecutor } from '../contracts/ICommandExecutor';
 import { IRLock } from '../contracts/IRLock';
 import { TimeUnit } from '../utils/TimeUnit';
@@ -7,6 +8,8 @@ export type LockClientId = string;
 export abstract class RedissonBaseLock implements IRLock {
   private static readonly EXPIRATION_RENEWAL_MAP = new Map<string, ExpirationEntry>();
 
+  protected lockName: string;
+  protected clientId: LockClientId;
   protected internalLockLeaseTime: bigint;
   protected readonly entryName: string;
 
@@ -15,9 +18,11 @@ export abstract class RedissonBaseLock implements IRLock {
     return `${prefix}:${_name}`;
   }
 
-  constructor(protected readonly commandExecutor: ICommandExecutor, protected readonly lockName: string) {
-    this.internalLockLeaseTime = commandExecutor.redissonConfig.lockWatchdogTimeout;
+  constructor(protected readonly commandExecutor: ICommandExecutor, lockName: string) {
+    this.lockName = lockName;
+    this.clientId = randomUUID();
     this.entryName = `${commandExecutor.id}:${lockName}`;
+    this.internalLockLeaseTime = commandExecutor.redissonConfig.lockWatchdogTimeout;
   }
 
   get name() {
@@ -28,7 +33,11 @@ export abstract class RedissonBaseLock implements IRLock {
   abstract tryLock(waitTime: bigint, leaseTime: bigint, unit: TimeUnit): Promise<boolean>;
   abstract lock(leaseTime: bigint, unit: TimeUnit): Promise<void>;
   abstract forceUnlock(): Promise<boolean>;
-  abstract isLocked(): Promise<boolean>;
+
+  async isLocked(): Promise<boolean> {
+    const count = await this.commandExecutor.redis.exists(this.lockName);
+    return count > 0;
+  }
 
   protected getClientName(clientId: LockClientId) {
     return `${this.commandExecutor.id}:${clientId}`;
