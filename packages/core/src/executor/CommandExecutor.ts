@@ -1,7 +1,7 @@
-import { ICommandExecutor, SYMBOL_TIMEOUT, RedissionRedis } from '../contracts/ICommandExecutor';
+import { ICommandExecutor, SYMBOL_TIMEOUT, RedissonRedis } from '../contracts/ICommandExecutor';
 import Redis, { Result, RedisOptions } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
-import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
+import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
 import { randomUUID } from 'crypto';
 
 declare module 'ioredis' {
@@ -63,10 +63,10 @@ export abstract class CommandExecutor implements ICommandExecutor {
   abstract publish(eventName: string, e: string): Promise<string | null>;
 
   private _id: string;
-  private _redis: RedissionRedis;
-  private _subscribeRedis: RedissionRedis;
+  private _redis: RedissonRedis;
+  private _subscribeRedis: RedissonRedis;
 
-  constructor(private readonly config: IRedissionInnerConfig) {
+  constructor(private readonly config: IRedissonInnerConfig) {
     this._id = randomUUID();
     this._redis = this.createRedis();
     this._subscribeRedis = this.createRedis();
@@ -90,19 +90,19 @@ export abstract class CommandExecutor implements ICommandExecutor {
     return this._id;
   }
 
-  get redissionConfig(): IRedissionInnerConfig {
-    return this.redissionConfig;
+  get redissonConfig(): IRedissonInnerConfig {
+    return this.redissonConfig;
   }
 
   get serviceManager(): ServiceManager {
     throw new Error('Method not implemented.');
   }
 
-  get redis(): RedissionRedis {
+  get redis(): RedissonRedis {
     return this._redis;
   }
 
-  get subscribeRedis(): RedissionRedis {
+  get subscribeRedis(): RedissonRedis {
     return this._subscribeRedis;
   }
 }

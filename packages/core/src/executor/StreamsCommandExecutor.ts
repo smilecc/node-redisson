@@ -1,14 +1,14 @@
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
-import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
+import { IRedissonInnerConfig } from '../contracts/IRedissonConfig';
 import { CommandExecutor } from './CommandExecutor';
 import EventEmitter from 'node:events';
 
-const REDIS_STREAMS_KEY = 'redission:events';
+const REDIS_STREAMS_KEY = 'redisson:events';
 
 export class StreamsCommandExecutor extends CommandExecutor {
   private readonly eventEmitter: EventEmitter;
 
-  constructor(config: IRedissionInnerConfig) {
+  constructor(config: IRedissonInnerConfig) {
     super(config);
 
     this.eventEmitter = new EventEmitter();

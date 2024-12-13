@@ -1,8 +1,8 @@
 import { ICommandExecutor, SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import { TimeUnit } from '../utils/TimeUnit';
-import { RedissionBaseLock } from './RedissionBaseLock';
+import { RedissonBaseLock } from './RedissonBaseLock';
 
-export class RedissionLock extends RedissionBaseLock {
+export class RedissonLock extends RedissonBaseLock {
   constructor(commandExecutor: ICommandExecutor, lockName: string) {
     super(commandExecutor, lockName);
   }
@@ -109,6 +109,6 @@ export class RedissionLock extends RedissionBaseLock {
   }
 
   getChannelName() {
-    return RedissionBaseLock.prefixName('redisson:lock_channel', this.lockName);
+    return RedissonBaseLock.prefixName('redisson:lock_channel', this.lockName);
   }
 }

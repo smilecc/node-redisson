@@ -1,5 +1,5 @@
 import { IRLock } from './IRLock';
 
-export interface IRedissionClient {
+export interface IRedissonClient {
   getLock(name: string): IRLock;
 }

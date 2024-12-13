@@ -1,9 +1,9 @@
-export type RedissionTime = number | bigint;
+export type RedissonTime = number | bigint;
 
 export class TimeUnit {
   private readonly _baseMs: bigint;
 
-  constructor(public readonly baseMs: RedissionTime) {
+  constructor(public readonly baseMs: RedissonTime) {
     if (typeof baseMs === 'number') {
       this._baseMs = BigInt(baseMs);
     } else {
@@ -26,19 +26,19 @@ export class TimeUnit {
     return BigInt(new Date().getTime());
   }
 
-  toMillis(d: RedissionTime) {
+  toMillis(d: RedissonTime) {
     return BigInt(d) * this._baseMs;
   }
 
-  toSeconds(d: RedissionTime) {
+  toSeconds(d: RedissonTime) {
     return (BigInt(d) * this._baseMs) / TimeUnit.SECONDS._baseMs;
   }
 
-  toHours(d: RedissionTime) {
+  toHours(d: RedissonTime) {
     return (BigInt(d) * this._baseMs) / TimeUnit.HOURS._baseMs;
   }
 
-  toDays(d: RedissionTime) {
+  toDays(d: RedissonTime) {
     return (BigInt(d) * this._baseMs) / TimeUnit.DAYS._baseMs;
   }
 }

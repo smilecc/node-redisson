@@ -1,6 +1,6 @@
 import { RedisOptions } from 'ioredis';
-import { IRedissionConfig } from '../contracts/IRedissionConfig';
+import { IRedissonConfig } from '../contracts/IRedissonConfig';
 
 export class ServiceManager {
-  constructor(private readonly redisOptions: RedisOptions, private readonly redissionConfig: IRedissionConfig) {}
+  constructor(private readonly redisOptions: RedisOptions, private readonly redissonConfig: IRedissonConfig) {}
 }

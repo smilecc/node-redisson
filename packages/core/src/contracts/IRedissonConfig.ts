@@ -1,6 +1,6 @@
 import { ClusterNode, ClusterOptions, RedisOptions } from 'ioredis';
 
-export interface IRedissionConfig {
+export interface IRedissonConfig {
   redis: { options: RedisOptions } | { clusters: ClusterNode[]; options?: ClusterOptions };
 
   /**
@@ -21,4 +21,4 @@ type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property];
 };
 
-export interface IRedissionInnerConfig extends WithRequiredProperty<IRedissionConfig, 'lockWatchdogTimeout'> {}
+export interface IRedissonInnerConfig extends WithRequiredProperty<IRedissonConfig, 'lockWatchdogTimeout'> {}

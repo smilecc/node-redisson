@@ -1,18 +1,18 @@
 import { ICommandExecutor } from './contracts/ICommandExecutor';
-import { IRedissionClient } from './contracts/IRedissionClient';
-import { IRedissionConfig, IRedissionInnerConfig } from './contracts/IRedissionConfig';
+import { IRedissonClient } from './contracts/IRedissonClient';
+import { IRedissonConfig, IRedissonInnerConfig } from './contracts/IRedissonConfig';
 import { IRLock } from './contracts/IRLock';
 import { StreamsCommandExecutor } from './executor/StreamsCommandExecutor';
-import { RedissionLock } from './locks/RedissionLock';
+import { RedissonLock } from './locks/RedissonLock';
 
-export class Redission implements IRedissionClient {
+export class Redisson implements IRedissonClient {
   private commandExecutor: ICommandExecutor;
 
-  constructor(private readonly config: IRedissionConfig) {
+  constructor(private readonly config: IRedissonConfig) {
     this.commandExecutor = new StreamsCommandExecutor(this.withDefaultConfig(config));
   }
 
-  private withDefaultConfig(config: IRedissionConfig): IRedissionInnerConfig {
+  private withDefaultConfig(config: IRedissonConfig): IRedissonInnerConfig {
     const { lockWatchdogTimeout = 30_000n } = config;
 
     return {
@@ -22,6 +22,6 @@ export class Redission implements IRedissionClient {
   }
 
   getLock(name: string): IRLock {
-    return new RedissionLock(this.commandExecutor, name);
+    return new RedissonLock(this.commandExecutor, name);
   }
 }

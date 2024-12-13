@@ -4,7 +4,7 @@ import { TimeUnit } from '../utils/TimeUnit';
 
 export type LockClientId = string;
 
-export abstract class RedissionBaseLock implements IRLock {
+export abstract class RedissonBaseLock implements IRLock {
   private static readonly EXPIRATION_RENEWAL_MAP = new Map<string, ExpirationEntry>();
 
   protected internalLockLeaseTime: bigint;
@@ -16,7 +16,7 @@ export abstract class RedissionBaseLock implements IRLock {
   }
 
   constructor(protected readonly commandExecutor: ICommandExecutor, protected readonly lockName: string) {
-    this.internalLockLeaseTime = commandExecutor.redissionConfig.lockWatchdogTimeout;
+    this.internalLockLeaseTime = commandExecutor.redissonConfig.lockWatchdogTimeout;
     this.entryName = `${commandExecutor.id}:${lockName}`;
   }
 
@@ -35,20 +35,20 @@ export abstract class RedissionBaseLock implements IRLock {
   }
 
   protected scheduleExpirationRenewal(clientId: LockClientId) {
-    const oldEntry = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
+    const oldEntry = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
     if (oldEntry) {
       oldEntry.addClientId(clientId);
     } else {
       const entry = new ExpirationEntry();
-      RedissionBaseLock.EXPIRATION_RENEWAL_MAP.set(this.entryName, entry);
+      RedissonBaseLock.EXPIRATION_RENEWAL_MAP.set(this.entryName, entry);
 
       this.renewExpiration();
     }
   }
 
   protected renewExpiration() {
-    const ee = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
+    const ee = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
     if (!ee) {
       return;
@@ -56,7 +56,7 @@ export abstract class RedissionBaseLock implements IRLock {
 
     setTimeout(async () => {
       try {
-        const ent = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
+        const ent = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
         if (!ent) {
           return;
@@ -86,7 +86,7 @@ export abstract class RedissionBaseLock implements IRLock {
   }
 
   protected cancelExpirationRenewal(clientId?: LockClientId, unlockResult?: boolean) {
-    const task = RedissionBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
+    const task = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
     if (!task) {
       return;
     }
@@ -100,7 +100,7 @@ export abstract class RedissionBaseLock implements IRLock {
         clearTimeout(task.timeoutId);
       }
 
-      RedissionBaseLock.EXPIRATION_RENEWAL_MAP.delete(this.entryName);
+      RedissonBaseLock.EXPIRATION_RENEWAL_MAP.delete(this.entryName);
     }
   }
 }
