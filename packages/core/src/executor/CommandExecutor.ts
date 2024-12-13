@@ -2,6 +2,7 @@ import { ICommandExecutor, SYMBOL_TIMEOUT, RedissionRedis } from '../contracts/I
 import Redis, { Result, RedisOptions } from 'ioredis';
 import { ServiceManager } from '../manager/ServiceManager';
 import { IRedissionInnerConfig } from '../contracts/IRedissionConfig';
+import { randomUUID } from 'crypto';
 
 declare module 'ioredis' {
   interface RedisCommander<Context> {
@@ -66,7 +67,7 @@ export abstract class CommandExecutor implements ICommandExecutor {
   private _subscribeRedis: RedissionRedis;
 
   constructor(private readonly config: IRedissionInnerConfig) {
-    this._id = crypto.randomUUID();
+    this._id = randomUUID();
     this._redis = this.createRedis();
     this._subscribeRedis = this.createRedis();
   }

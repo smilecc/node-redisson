@@ -2,6 +2,7 @@ import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redission } from '../Redisson';
 import { TestRedisContainer, TestTimeout } from '../utils/test.utils';
 import Redis from 'ioredis';
+import { randomUUID } from 'crypto';
 
 describe('RedissionLock', () => {
   jest.setTimeout(TestTimeout);
@@ -29,8 +30,8 @@ describe('RedissionLock', () => {
 
   it('should connected', async () => {
     const redis = redission['commandExecutor'].redis;
-    const randomKey = crypto.randomUUID();
-    const randomValue = crypto.randomUUID();
+    const randomKey = randomUUID();
+    const randomValue = randomUUID();
 
     await expect(redis.set(randomKey, randomValue)).resolves.toBe('OK');
     await expect(redis.get(randomKey)).resolves.toBe(randomValue);

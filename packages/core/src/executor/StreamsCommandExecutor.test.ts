@@ -3,6 +3,7 @@ import { TestRedisContainer, TestTimeout } from '../utils/test.utils';
 import { StreamsCommandExecutor } from './StreamsCommandExecutor';
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import Redis from 'ioredis';
+import { randomUUID } from 'crypto';
 
 describe('StreamsCommandExecutor', () => {
   jest.setTimeout(TestTimeout);
@@ -29,8 +30,8 @@ describe('StreamsCommandExecutor', () => {
   });
 
   it('should be able to pub/sub', (done) => {
-    const event = crypto.randomUUID();
-    const eventContent = crypto.randomUUID();
+    const event = randomUUID();
+    const eventContent = randomUUID();
 
     executor
       .waitSubscribeOnce<string>(event)
@@ -44,7 +45,7 @@ describe('StreamsCommandExecutor', () => {
   });
 
   it('waitSubscribeOnce should be able to timeout', async () => {
-    const event = crypto.randomUUID();
+    const event = randomUUID();
 
     await expect(executor.waitSubscribeOnce<string>(event, 1000)).resolves.toBe(SYMBOL_TIMEOUT);
   });

@@ -1,4 +1,4 @@
-import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
+import { RedisContainer } from '@testcontainers/redis';
 
 export function createTestRedisContainer() {
   return new RedisContainer('redis:7.4.1-alpine').start();
