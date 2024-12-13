@@ -20,11 +20,11 @@ describe('RedissonLock', () => {
     redisson = new Redisson({
       redis: {
         options: {
-          // host: redisContainer.getHost(),
-          // port: redisContainer.getPort(),
-          // password: redisContainer.getPassword(),
-          host: '127.0.0.1',
-          port: 32768,
+          host: redisContainer.getHost(),
+          port: redisContainer.getPort(),
+          password: redisContainer.getPassword(),
+          // host: '127.0.0.1',
+          // port: 32768,
           enableReadyCheck: true,
         },
       },
@@ -192,5 +192,23 @@ describe('RedissonLock', () => {
           .catch((e) => done(e));
       })
       .catch((e) => done(e));
+  });
+
+  it('force unlock', async () => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+    const lock2 = redisson.getLock(lockName) as RedissonLock;
+
+    await lock.lock();
+
+    expect(lock.isLocked()).resolves.toBeTruthy();
+    expect(lock2.isLocked()).resolves.toBeTruthy();
+
+    await lock2.forceUnlock();
+
+    expect(lock.isLocked()).resolves.toBeFalsy();
+    expect(lock2.isLocked()).resolves.toBeFalsy();
+
+    await expect(lock2.tryLock(1n, 10n, TimeUnit.SECONDS)).resolves.toBeTruthy();
   });
 });
