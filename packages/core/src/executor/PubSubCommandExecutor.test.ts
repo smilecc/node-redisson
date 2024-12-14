@@ -1,18 +1,18 @@
-import { JestRedisOptions, TestRedisOptions, TestTimeout } from '../utils/test.utils';
-import { StreamsCommandExecutor } from './StreamsCommandExecutor';
+import { TestRedisOptions, TestTimeout } from '../utils/test.utils';
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
+import { PubSubCommandExecutor } from './PubSubCommandExecutor';
 
-describe('StreamsCommandExecutor', () => {
+describe('PubSubCommandExecutor', () => {
   jest.setTimeout(TestTimeout);
 
-  let executor: StreamsCommandExecutor;
+  let executor: PubSubCommandExecutor;
 
   beforeAll(async () => {
-    executor = new StreamsCommandExecutor({
+    executor = new PubSubCommandExecutor({
       lockWatchdogTimeout: 30000n,
-      eventAdapter: 'streams',
+      eventAdapter: 'pubsub',
       redis: {
         options: {
           ...(await TestRedisOptions),

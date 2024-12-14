@@ -143,7 +143,8 @@ export abstract class CommandExecutor implements ICommandExecutor {
 
   waitSubscribeOnce<T>(eventName: string, timeout?: number): Promise<T | typeof SYMBOL_TIMEOUT> {
     return new Promise(async (resolve) => {
-      const handler = (e: T) => {
+      const handler = async (e: T) => {
+        await this.unsubscribe(eventName, handler);
         resolve(e);
       };
 

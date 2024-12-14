@@ -1,6 +1,5 @@
-import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis';
 import { Redisson } from '../Redisson';
-import { TestRedisContainer, TestTimeout } from '../utils/test.utils';
+import { TestRedisOptions, TestTimeout } from '../utils/test.utils';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { RedissonLock } from './RedissonLock';
@@ -11,20 +10,13 @@ import { UnlockMessages } from '../contracts/ICommandExecutor';
 describe('RedissonLock', () => {
   jest.setTimeout(TestTimeout);
 
-  let redisContainer: StartedRedisContainer;
   let redisson: Redisson;
 
   beforeAll(async () => {
-    redisContainer = await TestRedisContainer;
-
     redisson = new Redisson({
       redis: {
         options: {
-          // host: redisContainer.getHost(),
-          // port: redisContainer.getPort(),
-          // password: redisContainer.getPassword(),
-          host: '127.0.0.1',
-          port: 32768,
+          ...(await TestRedisOptions),
           enableReadyCheck: true,
         },
       },
@@ -78,7 +70,7 @@ describe('RedissonLock', () => {
   });
 
   it('lock and unlock', async () => {
-    const lockName = 'TestLock'; // randomUUID();
+    const lockName = randomUUID();
     const lock = redisson.getLock(lockName);
     const lock2 = redisson.getLock(lockName);
 
@@ -212,10 +204,17 @@ describe('RedissonLock', () => {
     await expect(lock2.tryLock(1n, 10n, TimeUnit.SECONDS)).resolves.toBeTruthy();
   });
 
-  it.only('test', async () => {
+  it.skip('test with java-redisson', async () => {
     const lock = redisson.getLock('SmileTest');
+
+    const now = TimeUnit.now();
 
     await lock.lock();
     expect(lock.isLocked()).resolves.toBeTruthy();
+    console.log('lock.lock', TimeUnit.now() - now);
+
+    await new Promise((r) => setTimeout(r, 20_000));
+
+    await lock.unlock();
   });
 });

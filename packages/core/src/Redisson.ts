@@ -20,7 +20,7 @@ export class Redisson implements IRedissonClient {
   }
 
   private withDefaultConfig(config: IRedissonConfig): IRedissonInnerConfig {
-    const { lockWatchdogTimeout = 30_000n, eventAdapter = 'streams' } = config;
+    const { lockWatchdogTimeout = 30_000n, eventAdapter = 'pubsub' } = config;
 
     return {
       lockWatchdogTimeout,

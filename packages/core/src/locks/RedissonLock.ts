@@ -137,6 +137,6 @@ export class RedissonLock extends RedissonBaseLock {
   }
 
   getChannelName() {
-    return RedissonBaseLock.prefixName('redisson:lock_channel', this.lockName);
+    return RedissonBaseLock.prefixName('redisson_lock__channel', this.lockName);
   }
 }
