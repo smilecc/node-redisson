@@ -1,4 +1,4 @@
-import { JestRedisOptions, TestRedisOptions, TestTimeout } from '../utils/test.utils';
+import { JestRedisOptions, TestRedisOptions, TestTimeout } from '../test-config';
 import { StreamsCommandExecutor } from './StreamsCommandExecutor';
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import Redis from 'ioredis';

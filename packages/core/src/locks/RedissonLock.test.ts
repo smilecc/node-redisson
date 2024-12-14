@@ -1,5 +1,5 @@
 import { Redisson } from '../Redisson';
-import { TestRedisOptions, TestTimeout } from '../utils/test.utils';
+import { TestRedisOptions, TestTimeout } from '../test-config';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
 import { RedissonLock } from './RedissonLock';

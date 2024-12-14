@@ -1,4 +1,4 @@
-import { TestRedisOptions, TestTimeout } from '../utils/test.utils';
+import { TestRedisOptions, TestTimeout } from '../test-config';
 import { SYMBOL_TIMEOUT } from '../contracts/ICommandExecutor';
 import Redis from 'ioredis';
 import { randomUUID } from 'crypto';
