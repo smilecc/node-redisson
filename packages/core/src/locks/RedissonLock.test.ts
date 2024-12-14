@@ -14,6 +14,7 @@ describe('RedissonLock', () => {
 
   beforeAll(async () => {
     redisson = new Redisson({
+      lockWatchdogTimeout: 3000n,
       redis: {
         options: {
           ...(await TestRedisOptions),

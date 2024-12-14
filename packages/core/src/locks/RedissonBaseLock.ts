@@ -87,7 +87,7 @@ export abstract class RedissonBaseLock implements IRLock {
       return;
     }
 
-    setTimeout(async () => {
+    ee.timeoutId = setTimeout(async () => {
       try {
         const ent = RedissonBaseLock.EXPIRATION_RENEWAL_MAP.get(this.entryName);
 
@@ -144,20 +144,20 @@ export abstract class RedissonBaseLock implements IRLock {
   }
 }
 
-class ExpirationEntry {
-  public timeoutId?: number;
+export class ExpirationEntry {
+  public timeoutId?: NodeJS.Timeout;
   private clientsQueue: LockClientId[] = [];
   private readonly clientIds = new Map<LockClientId, number>();
 
   addClientId(clientId: LockClientId) {
-    this.clientIds.set(clientId, this.clientIds.get(clientId) ?? 0 + 1);
+    this.clientIds.set(clientId, this.getClientCounter(clientId) + 1);
     this.clientsQueue.push(clientId);
   }
 
   removeClientId(clientId: LockClientId) {
     if (this.clientIds.has(clientId)) {
       // decrement the counter
-      const counter = this.clientIds.get(clientId) ?? 0 - 1;
+      const counter = this.getClientCounter(clientId) - 1;
 
       // if counter <= 0, remove the clientId
       if (counter <= 0) {
@@ -175,5 +175,9 @@ class ExpirationEntry {
 
   get firstClientId() {
     return this.clientsQueue[0];
+  }
+
+  getClientCounter(clientId: string, defaultCounter: number = 0) {
+    return this.clientIds.get(clientId) ?? defaultCounter;
   }
 }
