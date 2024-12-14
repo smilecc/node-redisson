@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "packages/core/src/**/*"
+    ],
+    "exclude": [
+        "packages/core/src/**/*.test.ts",
+        "packages/core/src/test.config.ts"
+    ],
+    "compilerOptions": {
+        "rootDir": "./packages/core/src",
+        "module": "CommonJS",
+        "sourceMap": false,
+        "moduleResolution": "node"
+    }
+}

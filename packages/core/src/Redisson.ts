@@ -1,4 +1,4 @@
-import { ICommandExecutor } from './contracts/ICommandExecutor';
+import { ICommandExecutor, RedissonRedis } from './contracts/ICommandExecutor';
 import { IRedissonClient } from './contracts/IRedissonClient';
 import { IRedissonConfig, IRedissonInnerConfig } from './contracts/IRedissonConfig';
 import { IRLock } from './contracts/IRLock';
@@ -27,6 +27,10 @@ export class Redisson implements IRedissonClient {
       eventAdapter,
       ...config,
     };
+  }
+
+  get redis(): RedissonRedis {
+    return this.commandExecutor.redis;
   }
 
   getLock(name: string): IRLock {

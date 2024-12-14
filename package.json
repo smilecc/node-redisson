@@ -1,8 +1,15 @@
 {
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "packageManager": "pnpm@9.10.0",
   "version": "1.0.0",
+  "files": [
+    "dist/"
+  ],
+  "main": "./dist/src/",
+  "scripts": {
+    "build": "pnpm dlx rimraf dist && tsc -p tsconfig.build.json"
+  },
   "peerDependencies": {
     "typescript": "^5.7.2"
   },
