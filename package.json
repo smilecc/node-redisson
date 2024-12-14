@@ -1,12 +1,32 @@
 {
-  "private": true,
+  "name": "node-redisson",
+  "description": "Distributed lock with Redis implementation for Node.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smilecc/node-redisson.git"
+  },
+  "keywords": [
+    "nodejs",
+    "redlock",
+    "distributed",
+    "lock",
+    "redis",
+    "redisson"
+  ],
   "type": "commonjs",
   "packageManager": "pnpm@9.10.0",
   "version": "1.0.0",
   "files": [
-    "dist/"
+    "dist/",
+    "README.md",
+    "README_cn.md"
   ],
-  "main": "./dist/src/",
+  "engines": {
+    "node": ">=16"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "pnpm dlx rimraf dist && tsc -p tsconfig.build.json"
   },
