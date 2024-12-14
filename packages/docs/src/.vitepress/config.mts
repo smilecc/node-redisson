@@ -13,6 +13,23 @@ export default defineConfig({
     'zh-cn': {
       label: '简体中文',
       lang: 'zh-cn',
+      themeConfig: {
+        nav: [
+          { text: '首页', link: '/zh-cn' },
+          { text: '指南', link: '/zh-cn/guide/overview' },
+          { text: '配置', link: '/zh-cn/config/overview' },
+        ],
+
+        sidebar: [
+          {
+            text: '指南',
+            items: [
+              { text: '了解 NodeRedisson', link: '/zh-cn/guide/overview' },
+              { text: '快速开始', link: '/zh-cn/guide/getting-started' },
+            ],
+          },
+        ],
+      },
     },
   },
 
@@ -33,6 +50,6 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: 'github', link: 'https://github.com/vuejs/vitepress' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/smilecc/node-redisson' }],
   },
 });

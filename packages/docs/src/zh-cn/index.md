@@ -18,7 +18,7 @@ features:
   - title: 易使用
     details: 易用的 API 设计使您可以在 3 分钟上手 NodeRedisson
   - title: 高可用
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Lua 脚本来自于 Redisson，测试驱动开发，95% 以上单元测试覆盖率
   - title: 兼容 Java Redisson
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: 连接同一 Redis 实例时，与 Java Redisson 的分布式锁相兼容
 ---
