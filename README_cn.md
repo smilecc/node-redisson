@@ -22,3 +22,39 @@ NodeRedisson 是一个 Node.js 的 Redis 分布式锁，易于使用、高可用
 - Redis >= 3（使用 PubSub 作为消息实现时）
 
 Redis 版本与消息实现具有相关性，默认使用 Pub/Sub 时 Redis 版本 >= 3，使用 Streams 时 Redis 版本需 >= 5。
+
+## 快速上手
+
+### 安装
+
+```sh
+pnpm add node-redisson ioredis
+```
+
+### 使用
+
+```ts
+import { Redisson } from 'node-redisson';
+
+const redisson = new Redisson({
+  redis: {
+    options: {
+      host: '127.0.0.1',
+      port: 42800,
+    },
+  },
+});
+
+// 创建锁
+const lock = redisson.getLock('Example:FirstLock');
+
+// 获取锁
+await lock.lock();
+
+// 释放锁
+await lock.unlock();
+```
+
+## 文档 🚧
+
+文档正在编写中。

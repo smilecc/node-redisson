@@ -1,6 +1,6 @@
 # Node Redisson
 
-> English | [中文](README_cn.md)
+> English | [中文](https://github.com/smilecc/node-redisson/blob/main/README_cn.md)
 
 Node Redisson is a Redis distributed lock for Node.js, which is easy to use and highly available.
 
@@ -22,3 +22,38 @@ Of course, you can also manually set the duration of the lock.
 - Redis >= 3 (when using PubSub as the message implementation)
 
 The Redis version is relevant to the message implementation. When using Pub/Sub by default, the Redis version should be >= 3, and when using Streams, the Redis version needs to be >= 5.
+
+## Quickstart
+
+### Install
+
+```sh
+pnpm add node-redisson ioredis
+```
+
+### Usage
+```ts
+import { Redisson } from 'node-redisson';
+
+const redisson = new Redisson({
+  redis: {
+    options: {
+      host: '127.0.0.1',
+      port: 42800,
+    },
+  },
+});
+
+// create a lock
+const lock = redisson.getLock('Example:FirstLock');
+
+// acquire lock
+await lock.lock();
+
+// free the lock
+await lock.unlock();
+```
+
+## Document 🚧
+
+Documentation is in progress.

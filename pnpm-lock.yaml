@@ -22,6 +22,15 @@ importers:
         specifier: ^29.2.5
         version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.10.1)(ts-node@10.9.2(@types/node@22.10.1)(typescript@5.7.2)))(typescript@5.7.2)
 
+  examples/sample:
+    dependencies:
+      ioredis:
+        specifier: ^5.4.1
+        version: 5.4.1
+      node-redisson:
+        specifier: ^1.0.0
+        version: 1.0.0(typescript@5.7.2)
+
   packages/core:
     dependencies:
       ioredis:
@@ -1769,6 +1778,12 @@ packages:
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
+
+  node-redisson@1.0.0:
+    resolution: {integrity: sha512-IK4sGU05SHjBCltQUFRFNh5EuxJVXOgRslos/2XvgIiEa487R+kQpefYVLSrMHgjJDDsZ77ATKApeQTr4qSeKQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      typescript: ^5.7.2
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
@@ -4411,6 +4426,10 @@ snapshots:
   natural-compare@1.4.0: {}
 
   node-int64@0.4.0: {}
+
+  node-redisson@1.0.0(typescript@5.7.2):
+    dependencies:
+      typescript: 5.7.2
 
   node-releases@2.0.19: {}
 

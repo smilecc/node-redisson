@@ -5,15 +5,15 @@
 ::: code-group
 
 ```sh [npm]
-$ npm add vitepress
+$ npm add node-redisson ioredis
 ```
 
 ```sh [pnpm]
-$ pnpm add vitepress
+$ pnpm add node-redisson ioredis
 ```
 
 ```sh [yarn]
-$ yarn add vitepress
+$ yarn add node-redisson ioredis
 ```
 
 :::
