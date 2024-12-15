@@ -16,7 +16,7 @@
   ],
   "type": "commonjs",
   "packageManager": "pnpm@9.10.0",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "files": [
     "dist/",
     "README.md",
