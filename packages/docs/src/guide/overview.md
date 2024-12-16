@@ -10,7 +10,7 @@ Usually, Node.js developers will use [Node Redlock](https://github.com/mike-marc
 
 Moreover, `node-redlock` project is not very easy to use. When using it, you need to pay great attention to the holding time of the lock, make predictions about the holding time of the lock in advance, and manually renew the lock. However, in actual business development, it is very difficult to make efficient predictions about the holding time of the lock.
 
-`Node Redisson` has implemented the "watchdog" and "lock release notification" features, so that you don't have to worry about predicting the holding time of the lock anymore.
+`Node Redisson` has implemented the **watchdog** and **unlock notification** features, so that you don't have to worry about predicting the holding time of the lock anymore.
 
 Of course, you can also manually set the duration of the lock.
 
@@ -19,7 +19,9 @@ Of course, you can also manually set the duration of the lock.
 - Node.js >= 16
 - Redis >= 3 (when using PubSub as the message implementation)
 
+::: info
 The Redis version is relevant to the message implementation. When using Pub/Sub by default, the Redis version should be >= 3, and when using Streams, the Redis version needs to be >= 5.
+:::
 
 ## Thanks
 
