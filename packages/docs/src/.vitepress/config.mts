@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
   title: 'Node Redisson',
   description: 'Redisson Library for Node.js',
-  base: './',
+  base: '/node-redisson',
 
   locales: {
     root: {
