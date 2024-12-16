@@ -6,6 +6,10 @@ Node Redisson is a Redis distributed lock for Node.js, which is easy to use and 
 
 It refers to the distributed lock implementation of Java Redisson and can be mutually compatible with the locks of Java Redisson.
 
+## Links
+
+- [Documentation](https://smilecc.github.io/node-redisson/)
+
 ## Why Node Redisson
 
 Usually, Node.js developers will use [Node Redlock](https://github.com/mike-marcacci/node-redlock) as a distributed lock, but it seems that this project is no longer maintained.
@@ -32,9 +36,11 @@ pnpm add node-redisson ioredis
 ```
 
 ### Usage
+
 ```ts
 import { Redisson } from 'node-redisson';
 
+// 1. Create a Redisson instance
 const redisson = new Redisson({
   redis: {
     options: {
@@ -44,16 +50,12 @@ const redisson = new Redisson({
   },
 });
 
-// create a lock
-const lock = redisson.getLock('Example:FirstLock');
+// 2. Get the lock
+const lock = redisson.getLock('Example:LockName');
 
-// acquire lock
+// 3. Lock
 await lock.lock();
 
-// free the lock
+// 4. Unlock
 await lock.unlock();
 ```
-
-## Document 🚧
-
-Documentation is in progress.

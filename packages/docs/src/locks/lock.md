@@ -20,7 +20,7 @@ const redisson = new Redisson({
   },
 });
 
-// Create a lock
+// Get a lock
 const lock = redisson.getLock('Example:ReentrantLock');
 
 // Acquire the lock

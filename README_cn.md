@@ -16,6 +16,10 @@ NodeRedisson 是一个 Node.js 的 Redis 分布式锁，易于使用、高可用
 
 当然，您也可以手动设定锁的持续时间。
 
+## 相关链接
+
+- [使用文档](https://smilecc.github.io/node-redisson/zh-cn/)
+
 ## 环境依赖
 
 - Node.js >= 16
@@ -36,6 +40,7 @@ pnpm add node-redisson ioredis
 ```ts
 import { Redisson } from 'node-redisson';
 
+// 1. 创建Redisson实例
 const redisson = new Redisson({
   redis: {
     options: {
@@ -45,16 +50,12 @@ const redisson = new Redisson({
   },
 });
 
-// 创建锁
-const lock = redisson.getLock('Example:FirstLock');
+// 2. 获取锁
+const lock = redisson.getLock('Example:LockName');
 
-// 获取锁
+// 3. 加锁
 await lock.lock();
 
-// 释放锁
+// 4. 解锁
 await lock.unlock();
 ```
-
-## 文档 🚧
-
-文档正在编写中。

@@ -8,7 +8,7 @@ hero:
   tagline: Distributed lock with Redis implementation for Node.js, compatible with Java Redisson.
   actions:
     - theme: brand
-      text: Why NodeRedisson
+      text: What is NodeRedisson
       link: /guide/overview
     - theme: alt
       text: Quick Start
