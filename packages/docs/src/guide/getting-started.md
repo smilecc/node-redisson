@@ -1,6 +1,6 @@
-# 快速开始
+# Quick Start
 
-## 安装
+## Installation
 
 ::: code-group
 
@@ -18,14 +18,14 @@ $ yarn add node-redisson ioredis
 
 :::
 
-## 初次使用
+## Usage
 
-NodeRedisson 的基本使用非常简单。
+The basic usage of NodeRedisson is very easy.
 
 ```ts
 import { Redisson } from 'node-redisson';
 
-// 1. 创建Redisson实例
+// 1. Create a Redisson instance
 const redisson = new Redisson({
   redis: {
     options: {
@@ -35,12 +35,12 @@ const redisson = new Redisson({
   },
 });
 
-// 2. 获取锁
+// 2. Get the lock
 const lock = redisson.getLock('Example:LockName');
 
-// 3. 加锁
+// 3. Lock
 await lock.lock();
 
-// 4. 解锁
+// 4. Unlock
 await lock.unlock();
 ```

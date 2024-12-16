@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 了解 NodeRedisson
-      link: /markdown-examples
+      link: /zh-cn/guide/overview
     - theme: alt
       text: 快速上手
-      link: /api-examples
+      link: /zh-cn/guide/getting-started
 
 features:
   - title: 易使用

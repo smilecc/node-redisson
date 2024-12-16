@@ -22,3 +22,7 @@ Node Redisson 实现了 **看门狗** 与 **锁释放通知** 机制，让您不
 ::: info
 Redis 版本与消息实现具有相关性，默认使用 Pub/Sub 时 Redis 版本 >= 3，使用 Streams 时 Redis 版本需 >= 5。
 :::
+
+## 感谢
+
+感谢您的使用，如果喜欢本项目，请给本项目 [Github](https://github.com/smilecc/node-redisson) 点个 Star 吧，谢谢。

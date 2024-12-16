@@ -29,6 +29,13 @@ export default defineConfig({
               { text: '快速开始', link: '/zh-cn/guide/getting-started' },
             ],
           },
+          {
+            text: '锁',
+            items: [
+              { text: '总览', link: '/zh-cn/locks/overview' },
+              { text: 'Lock（可重入锁）', link: '/zh-cn/locks/lock' },
+            ],
+          },
         ],
       },
     },
@@ -38,15 +45,23 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' },
+      { text: 'Guide', link: '/guide/overview' },
+      { text: 'Config', link: '/config/overview' },
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'Guide',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' },
+          { text: 'What is NodeRedisson', link: '/guide/overview' },
+          { text: 'Quickstart', link: '/guide/getting-started' },
+        ],
+      },
+      {
+        text: 'Locks',
+        items: [
+          { text: 'Overview', link: '/locks/overview' },
+          { text: 'Lock (Reentrant Lock)', link: '/locks/lock' },
         ],
       },
     ],
