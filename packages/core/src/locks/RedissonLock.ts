@@ -1,13 +1,18 @@
 import { ICommandExecutor, SYMBOL_TIMEOUT, UnlockMessages } from '../contracts/ICommandExecutor';
-import { TimeUnit } from '../utils/TimeUnit';
+import { RLockLeaseTime, RLockWaitTime } from '../contracts/IRLock';
+import { RedissonTime, TimeUnit } from '../utils/TimeUnit';
 import { LockClientId, RedissonBaseLock } from './RedissonBaseLock';
 
 export class RedissonLock extends RedissonBaseLock {
-  constructor(commandExecutor: ICommandExecutor, lockName: string) {
-    super(commandExecutor, lockName);
+  constructor(commandExecutor: ICommandExecutor, lockName: string, clientId?: string) {
+    super(commandExecutor, lockName, clientId);
   }
 
-  async tryLock(waitTime: bigint | false, leaseTime: bigint, unit: TimeUnit): Promise<boolean> {
+  async tryLock(
+    waitTime: RLockWaitTime,
+    leaseTime: RLockLeaseTime,
+    unit: TimeUnit = TimeUnit.MILLISECONDS,
+  ): Promise<boolean> {
     const waitForever = waitTime === false;
 
     let time = unit.toMillis(waitForever ? 0 : waitTime);
@@ -61,7 +66,7 @@ export class RedissonLock extends RedissonBaseLock {
     }
   }
 
-  private async tryAcquire(options: { leaseTime: bigint; unit: TimeUnit; clientId: string }) {
+  private async tryAcquire(options: { leaseTime: RLockLeaseTime; unit: TimeUnit; clientId: string }) {
     const { leaseTime, unit, clientId } = options;
 
     /**
@@ -69,7 +74,7 @@ export class RedissonLock extends RedissonBaseLock {
      * ttlRemaining is a number -> the lock remaining time
      */
     const ttlRemaining = await this.tryLockInner(
-      leaseTime > 0
+      leaseTime !== true && leaseTime > 0
         ? {
             leaseTime,
             unit,
@@ -84,7 +89,7 @@ export class RedissonLock extends RedissonBaseLock {
 
     if (ttlRemaining === null) {
       // lock acquired
-      if (leaseTime > 0) {
+      if (leaseTime !== true && leaseTime > 0) {
         this.internalLockLeaseTime = unit.toMillis(leaseTime);
       } else {
         this.scheduleExpirationRenewal(clientId);
@@ -94,7 +99,7 @@ export class RedissonLock extends RedissonBaseLock {
     return ttlRemaining;
   }
 
-  private async tryLockInner(options: { leaseTime: bigint; unit: TimeUnit; clientId: string }) {
+  private async tryLockInner(options: { leaseTime: RedissonTime; unit: TimeUnit; clientId: string }) {
     return this.commandExecutor.redis.rTryLockInner(
       this.lockName,
       options.unit.toMillis(options.leaseTime),
@@ -122,7 +127,7 @@ export class RedissonLock extends RedissonBaseLock {
     return !!result;
   }
 
-  async lock(leaseTime: bigint = -1n, unit: TimeUnit = TimeUnit.MILLISECONDS): Promise<void> {
+  async lock(leaseTime: RLockLeaseTime = true, unit?: TimeUnit): Promise<void> {
     await this.tryLock(false, leaseTime, unit);
   }
 

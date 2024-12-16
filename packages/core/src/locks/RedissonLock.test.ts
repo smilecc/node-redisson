@@ -74,36 +74,50 @@ describe('RedissonLock', () => {
     const lockName = randomUUID();
     const lock = redisson.getLock(lockName);
     const lock2 = redisson.getLock(lockName);
+    const lock3 = redisson.getLock(lockName, lock.clientId);
 
     // Before lock, all lock can't unlock
     expect(lock.unlock()).rejects.toThrow(RedissonLockError);
     expect(lock2.unlock()).rejects.toThrow(RedissonLockError);
+    expect(lock3.unlock()).rejects.toThrow(RedissonLockError);
 
     // All lock states should be unlocked
     await expect(lock.isLocked()).resolves.toBeFalsy();
     await expect(lock2.isLocked()).resolves.toBeFalsy();
+    await expect(lock3.isLocked()).resolves.toBeFalsy();
 
     // No.1 lock
     await lock.lock();
     // No.2 lock
-    await expect(lock.tryLock(1n, 0n, TimeUnit.SECONDS)).resolves.toBeTruthy();
+    await expect(lock.tryLock(1, true, TimeUnit.SECONDS)).resolves.toBeTruthy();
 
     // Test another tryLock
-    await expect(lock2.tryLock(1n, 0n, TimeUnit.SECONDS)).resolves.toBeFalsy();
+    await expect(lock2.tryLock(1, 5, TimeUnit.SECONDS)).resolves.toBeFalsy();
 
     // All lock states should be locked
     await expect(lock.isLocked()).resolves.toBeTruthy();
     await expect(lock2.isLocked()).resolves.toBeTruthy();
 
+    // No.3 lock
+    await expect(lock3.tryLock(1, 10, TimeUnit.SECONDS)).resolves.toBeTruthy();
+
     // No.1 unlock, All lock states should be locked
     await lock.unlock();
     await expect(lock.isLocked()).resolves.toBeTruthy();
     await expect(lock2.isLocked()).resolves.toBeTruthy();
+    await expect(lock3.isLocked()).resolves.toBeTruthy();
 
-    // After No.2 unlock, all lock states should be unlocked
+    // No.2 unlock, All lock states should be locked
     await lock.unlock();
+    await expect(lock.isLocked()).resolves.toBeTruthy();
+    await expect(lock2.isLocked()).resolves.toBeTruthy();
+    await expect(lock3.isLocked()).resolves.toBeTruthy();
+
+    // After No.3 unlock, all lock states should be unlocked
+    await lock3.unlock();
     await expect(lock.isLocked()).resolves.toBeFalsy();
     await expect(lock2.isLocked()).resolves.toBeFalsy();
+    await expect(lock3.isLocked()).resolves.toBeFalsy();
 
     // After unlock, all lock can't unlock again
     expect(lock.unlock()).rejects.toThrow(RedissonLockError);
@@ -137,7 +151,7 @@ describe('RedissonLock', () => {
       .lock()
       .then(async () => {
         lock2
-          .tryLock(false, 10n, TimeUnit.SECONDS)
+          .tryLock(false, 10, TimeUnit.SECONDS)
           .then((result) => {
             expect(result).toBeTruthy();
             done();
@@ -174,10 +188,10 @@ describe('RedissonLock', () => {
     const lock2 = redisson.getLock(lockName) as RedissonLock;
 
     lock
-      .tryLock(false, 10n, TimeUnit.SECONDS)
+      .tryLock(false, 10, TimeUnit.SECONDS)
       .then(async () => {
         lock2
-          .tryLock(1n, 10n, TimeUnit.SECONDS)
+          .tryLock(1n, 10, TimeUnit.SECONDS)
           .then((result) => {
             expect(result).toBeFalsy();
             done();
@@ -202,7 +216,7 @@ describe('RedissonLock', () => {
     expect(lock.isLocked()).resolves.toBeFalsy();
     expect(lock2.isLocked()).resolves.toBeFalsy();
 
-    await expect(lock2.tryLock(1n, 10n, TimeUnit.SECONDS)).resolves.toBeTruthy();
+    await expect(lock2.tryLock(1, 10, TimeUnit.SECONDS)).resolves.toBeTruthy();
   });
 
   it.skip('test with java-redisson', async () => {

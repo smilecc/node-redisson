@@ -33,7 +33,7 @@ export class Redisson implements IRedissonClient {
     return this.commandExecutor.redis;
   }
 
-  getLock(name: string): IRLock {
-    return new RedissonLock(this.commandExecutor, name);
+  getLock(name: string, clientId?: string): IRLock {
+    return new RedissonLock(this.commandExecutor, name, clientId);
   }
 }

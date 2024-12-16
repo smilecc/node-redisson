@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { ICommandExecutor } from '../contracts/ICommandExecutor';
-import { IRLock } from '../contracts/IRLock';
+import { IRLock, RLockLeaseTime, RLockWaitTime } from '../contracts/IRLock';
 import { TimeUnit } from '../utils/TimeUnit';
 import { RedissonLockError } from '../errors/RedissonLockError';
 
@@ -11,7 +11,7 @@ export abstract class RedissonBaseLock implements IRLock {
 
   protected id: string;
   protected lockName: string;
-  protected clientId: LockClientId;
+  protected _clientId: LockClientId;
   protected internalLockLeaseTime: bigint;
   protected readonly entryName: string;
 
@@ -20,10 +20,10 @@ export abstract class RedissonBaseLock implements IRLock {
     return `${prefix}:${_name}`;
   }
 
-  constructor(protected readonly commandExecutor: ICommandExecutor, lockName: string) {
+  constructor(protected readonly commandExecutor: ICommandExecutor, lockName: string, clientId?: string) {
     this.id = commandExecutor.id;
     this.lockName = lockName;
-    this.clientId = randomUUID();
+    this._clientId = clientId ?? randomUUID();
     this.entryName = `${this.id}:${lockName}`;
     this.internalLockLeaseTime = commandExecutor.redissonConfig.lockWatchdogTimeout;
   }
@@ -32,8 +32,12 @@ export abstract class RedissonBaseLock implements IRLock {
     return this.lockName;
   }
 
-  abstract tryLock(waitTime: bigint, leaseTime: bigint, unit: TimeUnit): Promise<boolean>;
-  abstract lock(leaseTime?: bigint, unit?: TimeUnit): Promise<void>;
+  get clientId(): LockClientId {
+    return this._clientId;
+  }
+
+  abstract tryLock(waitTime: RLockWaitTime, leaseTime: RLockLeaseTime, unit?: TimeUnit): Promise<boolean>;
+  abstract lock(leaseTime?: RLockLeaseTime, unit?: TimeUnit): Promise<void>;
   abstract forceUnlock(): Promise<boolean>;
   abstract unlockInner(clientId: LockClientId, requestId: string, timeout: number): Promise<boolean | null>;
 

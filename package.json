@@ -16,7 +16,7 @@
   ],
   "type": "commonjs",
   "packageManager": "pnpm@9.10.0",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "files": [
     "dist/",
     "README.md",
@@ -28,7 +28,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "pnpm dlx rimraf dist && tsc -p tsconfig.build.json"
+    "build": "pnpm dlx rimraf dist && tsc -p tsconfig.build.json",
+    "docs:dev": "pnpm -C packages/docs dev",
+    "docs:build": "pnpm -C packages/docs build"
   },
   "peerDependencies": {
     "typescript": "^5.7.2"
