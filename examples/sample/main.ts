@@ -18,4 +18,7 @@ const redisson = new Redisson({
 
   // free the lock
   await lock.unlock();
+
+  // quit the redisson client
+  await redisson.quit();
 })();

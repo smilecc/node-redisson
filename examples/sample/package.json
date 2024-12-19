@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node main.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ioredis": "^5.4.1",
-    "node-redisson": "^1.0.0"
+    "node-redisson": "^1.0.3",
+    "ts-node": "^10.9.2"
   }
 }
