@@ -1,11 +1,8 @@
 {
   "name": "@node-redisson/nestjs",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "peerDependencies": {
     "@nestjs/common": "> 7.0.0 < 11",
     "@nestjs/core": "> 7.0.0 < 11"
@@ -15,5 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "@nestjs/core": "^10.4.15"
+  },
+  "dependencies": {
+    "ioredis": "^5.4.1",
+    "node-redisson": "^1.0.3"
   }
 }

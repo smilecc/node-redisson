@@ -46,6 +46,12 @@ importers:
       '@nestjs/common':
         specifier: '> 7.0.0 < 11'
         version: 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.1)
+      ioredis:
+        specifier: ^5.4.1
+        version: 5.4.1
+      node-redisson:
+        specifier: ^1.0.3
+        version: 1.0.3(typescript@5.7.2)
     devDependencies:
       '@nestjs/core':
         specifier: ^10.4.15
@@ -1827,6 +1833,12 @@ packages:
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
+
+  node-redisson@1.0.3:
+    resolution: {integrity: sha512-/a+pE1A2mxmjsPJRGPu5gQuHp4VXMp8rQT9/j4gsTcxhAYYUWsbrehUbvYId1WdcGoDxesLCJcAiO5JK/fbXSQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      typescript: ^5.7.2
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
@@ -4536,6 +4548,10 @@ snapshots:
       whatwg-url: 5.0.0
 
   node-int64@0.4.0: {}
+
+  node-redisson@1.0.3(typescript@5.7.2):
+    dependencies:
+      typescript: 5.7.2
 
   node-releases@2.0.19: {}
 
