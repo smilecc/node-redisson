@@ -36,4 +36,8 @@ export class Redisson implements IRedissonClient {
   getLock(name: string, clientId?: string): IRLock {
     return new RedissonLock(this.commandExecutor, name, clientId);
   }
+
+  async quit(): Promise<void> {
+    await Promise.allSettled([this.commandExecutor.redis.quit(), this.commandExecutor.subscribeRedis.quit()]);
+  }
 }

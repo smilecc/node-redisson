@@ -6,4 +6,6 @@ export interface IRedissonClient {
 
   getLock(name: string): IRLock;
   getLock(name: string, clientId: string): IRLock;
+
+  quit(): Promise<void>;
 }
