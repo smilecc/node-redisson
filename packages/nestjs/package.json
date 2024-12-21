@@ -1,6 +1,6 @@
 {
   "name": "@node-redisson/nestjs",
-  "version": "1.0.3-rc2",
+  "version": "1.0.3-rc3",
   "description": "NodeRedisson for NestJS",
   "type": "commonjs",
   "main": "dist/index.js",
