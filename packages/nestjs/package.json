@@ -1,20 +1,38 @@
 {
   "name": "@node-redisson/nestjs",
-  "version": "1.0.3",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.3-rc1",
+  "description": "NodeRedisson for NestJS",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@nestjs/common": "> 7.0.0 < 11",
     "@nestjs/core": "> 7.0.0 < 11"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "nodejs",
+    "redlock",
+    "distributed",
+    "lock",
+    "redis",
+    "redisson",
+    "nestjs"
+  ],
+  "license": "MIT",
   "devDependencies": {
     "@nestjs/core": "^10.4.15"
   },
   "dependencies": {
     "ioredis": "^5.4.1",
     "node-redisson": "^1.0.3"
+  },
+  "scripts": {
+    "build": "pnpm dlx rimraf dist && tsc"
   }
 }
