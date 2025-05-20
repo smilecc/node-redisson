@@ -1,6 +1,6 @@
 {
   "name": "@node-redisson/nestjs",
-  "version": "1.0.3-rc3",
+  "version": "1.0.4",
   "description": "NodeRedisson for NestJS",
   "type": "commonjs",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "ioredis": "^5.4.1",
-    "node-redisson": "^1.0.3"
+    "node-redisson": "^1.0.4"
   },
   "scripts": {
     "build": "pnpm dlx rimraf dist && tsc"
