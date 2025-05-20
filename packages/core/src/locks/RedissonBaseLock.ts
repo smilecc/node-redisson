@@ -78,6 +78,7 @@ export abstract class RedissonBaseLock implements IRLock {
       oldEntry.addClientId(clientId);
     } else {
       const entry = new ExpirationEntry();
+      entry.addClientId(clientId);
       RedissonBaseLock.EXPIRATION_RENEWAL_MAP.set(this.entryName, entry);
 
       this.renewExpiration();

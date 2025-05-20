@@ -232,4 +232,17 @@ describe('RedissonLock', () => {
 
     await lock.unlock();
   });
+
+  it('lock renew', async () => {
+    const lockName = randomUUID();
+    const lock = redisson.getLock(lockName) as RedissonLock;
+
+    await lock.lock();
+    await new Promise((r) => setTimeout(r, 5000));
+    await expect(lock.isLocked()).resolves.toBeTruthy();
+
+    await lock.unlock();
+    await new Promise((r) => setTimeout(r, 5000));
+    await expect(lock.isLocked()).resolves.toBeFalsy();
+  });
 });
